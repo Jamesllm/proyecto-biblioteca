@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Libro {
-    private Long id;
+    @NotBlank(message = "El código ISBN es obligatorio y actúa como identificador único")
+    private String isbn;
 
     @NotBlank(message = "El título del libro es obligatorio")
     private String titulo;
 
-    @NotBlank(message = "El código ISBN es obligatorio")
-    private String isbn;
+    private String sinopsis;
 
     @NotNull(message = "El ID del autor es obligatorio")
     private Long idAutor;
@@ -31,10 +31,4 @@ public class Libro {
     @NotNull(message = "El año de publicación es obligatorio")
     @Min(value = 1000, message = "El año de publicación debe ser válido")
     private Integer anioPublicacion;
-
-    private Boolean disponible = true;
-
-    public boolean isDisponible() {
-        return Boolean.TRUE.equals(disponible);
-    }
 }

@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class Usuario {
     private Long id;
 
+    private String dni;
+
     @NotBlank(message = "El nombre del usuario es obligatorio")
     private String nombre;
 
@@ -21,4 +23,11 @@ public class Usuario {
 
     private String telefono;
     private String direccion;
+
+    private String tipoUsuario = "ESTUDIANTE"; // "ESTUDIANTE", "DOCENTE", "INVESTIGADOR", "EXTERNO"
+    private String estado = "ACTIVO";           // "ACTIVO", "SANCIONADO", "INACTIVO"
+
+    public boolean isActivo() {
+        return "ACTIVO".equalsIgnoreCase(this.estado);
+    }
 }

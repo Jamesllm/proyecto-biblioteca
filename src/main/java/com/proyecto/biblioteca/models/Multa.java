@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,15 +20,22 @@ public class Multa {
     @NotNull(message = "El ID del usuario es obligatorio")
     private Long idUsuario;
 
+    private String tipoMulta = "RETRASO"; // "RETRASO", "DAÑO", "EXTRAVIO"
+
+    private Long horasRetraso = 0L;
+    private Integer diasRetraso = 0;
+
     @NotNull(message = "El monto es obligatorio")
     @Positive(message = "El monto debe ser mayor a cero")
     private Double monto;
 
     private String motivo;
 
-    private Boolean pagada = false;
+    private LocalDateTime fechaHoraEmision;
+
+    private String estado = "PENDIENTE"; // "PENDIENTE", "PAGADA", "ANULADA"
 
     public boolean isPagada() {
-        return Boolean.TRUE.equals(pagada);
+        return "PAGADA".equalsIgnoreCase(this.estado);
     }
 }
