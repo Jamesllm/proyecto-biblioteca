@@ -22,4 +22,14 @@ public class Categoria {
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
+    public Categoria(Long id, String nombre, String descripcion) {
+        this.id = id;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.activo = true;
+    }
 }

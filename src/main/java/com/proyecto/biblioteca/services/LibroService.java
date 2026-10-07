@@ -20,25 +20,28 @@ public class LibroService {
 
     @Transactional(readOnly = true)
     public List<Libro> listarTodos() {
-        return libroRepository.findAll();
+        return libroRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Libro> buscarPorIsbn(String isbn) {
         if (isbn == null) return Optional.empty();
-        return libroRepository.findById(isbn.trim());
+        return libroRepository.findByIsbnAndActivoTrue(isbn.trim());
     }
 
     public Libro guardar(Libro libro) {
         if (libro.getIsbn() != null) {
             libro.setIsbn(libro.getIsbn().trim());
         }
+        if (libro.getActivo() == null) {
+            libro.setActivo(true);
+        }
         return libroRepository.save(libro);
     }
 
     public Optional<Libro> actualizar(String isbn, Libro libroActualizado) {
         if (isbn == null) return Optional.empty();
-        return libroRepository.findById(isbn.trim()).map(existente -> {
+        return libroRepository.findByIsbnAndActivoTrue(isbn.trim()).map(existente -> {
             existente.setTitulo(libroActualizado.getTitulo());
             existente.setSinopsis(libroActualizado.getSinopsis());
             existente.setIdAutor(libroActualizado.getIdAutor());
@@ -50,15 +53,16 @@ public class LibroService {
     }
 
     public boolean eliminar(String isbn) {
-        if (isbn != null && libroRepository.existsById(isbn.trim())) {
-            libroRepository.deleteById(isbn.trim());
+        if (isbn == null) return false;
+        return libroRepository.findByIsbnAndActivoTrue(isbn.trim()).map(existente -> {
+            existente.setActivo(false);
+            libroRepository.save(existente);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     @Transactional(readOnly = true)
     public boolean existe(String isbn) {
-        return isbn != null && libroRepository.existsById(isbn.trim());
+        return isbn != null && libroRepository.findByIsbnAndActivoTrue(isbn.trim()).isPresent();
     }
 }

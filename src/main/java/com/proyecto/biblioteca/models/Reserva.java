@@ -36,6 +36,9 @@ public class Reserva {
     @Column(name = "estado", length = 30)
     private String estado = "PENDIENTE"; // "PENDIENTE", "ATENDIDA", "CANCELADA", "EXPIRADA"
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "isbn", referencedColumnName = "isbn", insertable = false, updatable = false)
     private Libro libro;
@@ -52,5 +55,6 @@ public class Reserva {
         this.fechaHoraReserva = fechaHoraReserva;
         this.fechaHoraExpiracion = fechaHoraExpiracion;
         this.estado = estado != null ? estado : "PENDIENTE";
+        this.activo = true;
     }
 }

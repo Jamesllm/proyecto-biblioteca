@@ -50,6 +50,24 @@ public class Multa {
     @Column(name = "estado", length = 30)
     private String estado = "PENDIENTE"; // "PENDIENTE", "PAGADA", "ANULADA"
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
+    public Multa(Long id, Long idPrestamo, Long idUsuario, String tipoMulta, Long horasRetraso,
+                 Integer diasRetraso, Double monto, String motivo, LocalDateTime fechaHoraEmision, String estado) {
+        this.id = id;
+        this.idPrestamo = idPrestamo;
+        this.idUsuario = idUsuario;
+        this.tipoMulta = tipoMulta != null ? tipoMulta : "RETRASO";
+        this.horasRetraso = horasRetraso != null ? horasRetraso : 0L;
+        this.diasRetraso = diasRetraso != null ? diasRetraso : 0;
+        this.monto = monto;
+        this.motivo = motivo;
+        this.fechaHoraEmision = fechaHoraEmision;
+        this.estado = estado != null ? estado : "PENDIENTE";
+        this.activo = true;
+    }
+
     public boolean isPagada() {
         return "PAGADA".equalsIgnoreCase(this.estado);
     }

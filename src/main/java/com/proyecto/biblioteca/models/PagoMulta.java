@@ -36,4 +36,17 @@ public class PagoMulta {
 
     @Column(name = "comprobante", length = 50)
     private String comprobante;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
+    public PagoMulta(Long id, Long idMulta, Double montoPagado, LocalDateTime fechaHoraPago, String metodoPago, String comprobante) {
+        this.id = id;
+        this.idMulta = idMulta;
+        this.montoPagado = montoPagado;
+        this.fechaHoraPago = fechaHoraPago;
+        this.metodoPago = metodoPago != null ? metodoPago : "EFECTIVO";
+        this.comprobante = comprobante;
+        this.activo = true;
+    }
 }

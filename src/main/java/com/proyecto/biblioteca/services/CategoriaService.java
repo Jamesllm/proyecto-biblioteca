@@ -20,21 +20,24 @@ public class CategoriaService {
 
     @Transactional(readOnly = true)
     public List<Categoria> listarTodas() {
-        return categoriaRepository.findAll();
+        return categoriaRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Categoria> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return categoriaRepository.findById(id);
+        return categoriaRepository.findByIdAndActivoTrue(id);
     }
 
     public Categoria guardar(Categoria categoria) {
+        if (categoria.getActivo() == null) {
+            categoria.setActivo(true);
+        }
         return categoriaRepository.save(categoria);
     }
 
     public Optional<Categoria> actualizar(Long id, Categoria categoriaActualizada) {
-        return categoriaRepository.findById(id).map(existente -> {
+        return categoriaRepository.findByIdAndActivoTrue(id).map(existente -> {
             existente.setNombre(categoriaActualizada.getNombre());
             existente.setDescripcion(categoriaActualizada.getDescripcion());
             return categoriaRepository.save(existente);
@@ -42,10 +45,11 @@ public class CategoriaService {
     }
 
     public boolean eliminar(Long id) {
-        if (id != null && categoriaRepository.existsById(id)) {
-            categoriaRepository.deleteById(id);
+        if (id == null) return false;
+        return categoriaRepository.findByIdAndActivoTrue(id).map(categoria -> {
+            categoria.setActivo(false);
+            categoriaRepository.save(categoria);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 }

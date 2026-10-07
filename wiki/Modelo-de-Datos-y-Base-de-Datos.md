@@ -51,6 +51,7 @@ erDiagram
 | `nombre` | VARCHAR(255) | NOT NULL | Nombre y apellidos del autor |
 | `nacionalidad` | VARCHAR(100) | NULL | Pais de origen |
 | `biografia` | TEXT | NULL | Resena biografica |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `categorias`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -58,6 +59,7 @@ erDiagram
 | `id` | BIGSERIAL | PRIMARY KEY | Identificador unico |
 | `nombre` | VARCHAR(100) | NOT NULL, UNIQUE | Genero literario o tematica |
 | `descripcion` | TEXT | NULL | Descripcion de la categoria |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `editoriales`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -66,6 +68,7 @@ erDiagram
 | `nombre` | VARCHAR(150) | NOT NULL, UNIQUE | Razon social o nombre comercial |
 | `pais` | VARCHAR(100) | NULL | Pais de la editorial |
 | `contacto` | VARCHAR(150) | NULL | Correo o telefono de contacto |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `libros`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -77,6 +80,7 @@ erDiagram
 | `id_categoria` | BIGINT | NOT NULL, FK -> categorias(id) | Categoria tematica |
 | `id_editorial` | BIGINT | NOT NULL, FK -> editoriales(id) | Casa editorial |
 | `anio_publicacion` | INTEGER | NOT NULL | Ano de edicion |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `ejemplares`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -87,6 +91,7 @@ erDiagram
 | `ubicacion` | VARCHAR(150) | NULL | Codigo de estante o pasillo |
 | `estado_conservacion` | VARCHAR(30) | DEFAULT 'BUENO' | EXCELENTE, BUENO, DETERIORADO |
 | `estado` | VARCHAR(30) | DEFAULT 'DISPONIBLE' | DISPONIBLE, PRESTADO, EN_MANTENIMIENTO |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `usuarios`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -101,6 +106,7 @@ erDiagram
 | `tipo_usuario` | VARCHAR(30) | DEFAULT 'ESTUDIANTE' | ESTUDIANTE, DOCENTE, EXTERNO |
 | `rol` | VARCHAR(30) | DEFAULT 'ROLE_ESTUDIANTE' | ROLE_ADMIN, ROLE_BIBLIOTECARIO, etc. |
 | `estado` | VARCHAR(30) | DEFAULT 'ACTIVO' | ACTIVO, SANCIONADO, INACTIVO |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `prestamos`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -112,6 +118,7 @@ erDiagram
 | `fecha_hora_devolucion_esperada` | TIMESTAMP | NOT NULL | Plazo limite fijado |
 | `fecha_hora_devolucion_real` | TIMESTAMP | NULL | Momento exacto de retorno fisico |
 | `estado` | VARCHAR(30) | DEFAULT 'ACTIVO' | ACTIVO, DEVUELTO, VENCIDO |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `multas`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -126,6 +133,7 @@ erDiagram
 | `motivo` | TEXT | NULL | Justificacion de la sancion |
 | `fecha_hora_emision` | TIMESTAMP | NOT NULL | Momento de emision |
 | `estado` | VARCHAR(30) | DEFAULT 'PENDIENTE' | PENDIENTE, PAGADA, ANULADA |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `pagos_multas`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -136,6 +144,7 @@ erDiagram
 | `fecha_hora_pago` | TIMESTAMP | NOT NULL | Momento exacto del cobro |
 | `metodo_pago` | VARCHAR(30) | DEFAULT 'EFECTIVO' | EFECTIVO, TARJETA, TRANSFERENCIA |
 | `comprobante` | VARCHAR(50) | NULL | Codigo de boleta o recibo |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
 
 ### Tabla `reservas`
 | Columna | Tipo de Dato | Restricciones | Descripcion |
@@ -146,3 +155,15 @@ erDiagram
 | `fecha_hora_reserva` | TIMESTAMP | NOT NULL | Momento de solicitud |
 | `fecha_hora_expiracion` | TIMESTAMP | NULL | Plazo maximo de reserva |
 | `estado` | VARCHAR(30) | DEFAULT 'PENDIENTE' | PENDIENTE, ATENDIDA, CANCELADA |
+| `activo` | BOOLEAN | NOT NULL, DEFAULT TRUE | Estado logico del registro (Soft Delete) |
+
+---
+
+## 4. Politica de Eliminacion Logica (Soft Delete)
+
+El sistema implementa una arquitectura de **Soft Delete** en el 100% de las tablas:
+* Ninguna peticion `DELETE` realiza un `DELETE FROM ...` en la base de datos.
+* Al ejecutar una operacion de eliminacion en la API, el servicio actualiza `activo = false` y persiste el cambio.
+* Las consultas de lectura (`listarTodos`, busquedas por identificador o filtros por atributos) filtran exclusivamente registros donde `activo = true` (`findByActivoTrue()`).
+* Esto garantiza la trazabilidad historica, la integridad referencial y la recuperabilidad de auditoria en auditorias academicas y corporativas.
+

@@ -43,6 +43,9 @@ public class Libro {
     @Column(name = "anio_publicacion", nullable = false)
     private Integer anioPublicacion;
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_autor", insertable = false, updatable = false)
     private Autor autor;
@@ -63,5 +66,6 @@ public class Libro {
         this.idCategoria = idCategoria;
         this.idEditorial = idEditorial;
         this.anioPublicacion = anioPublicacion;
+        this.activo = true;
     }
 }

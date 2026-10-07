@@ -30,19 +30,19 @@ public class PagoMultaService {
 
     @Transactional(readOnly = true)
     public List<PagoMulta> listarTodos() {
-        return pagoMultaRepository.findAll();
+        return pagoMultaRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<PagoMulta> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return pagoMultaRepository.findById(id);
+        return pagoMultaRepository.findByIdAndActivoTrue(id);
     }
 
     @Transactional(readOnly = true)
     public List<PagoMulta> listarPorMulta(Long idMulta) {
         if (idMulta == null) return List.of();
-        return pagoMultaRepository.findByIdMulta(idMulta);
+        return pagoMultaRepository.findByIdMultaAndActivoTrue(idMulta);
     }
 
     public PagoMulta procesarPago(Long idMulta, PagoMultaRequestDTO dto) {
@@ -72,6 +72,7 @@ public class PagoMultaService {
             comprobante = "BOL-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
         pago.setComprobante(comprobante);
+        pago.setActivo(true);
 
         PagoMulta guardado = pagoMultaRepository.save(pago);
 
@@ -85,7 +86,19 @@ public class PagoMultaService {
         return guardado;
     }
 
+    public boolean eliminar(Long id) {
+        if (id == null) return false;
+        return pagoMultaRepository.findByIdAndActivoTrue(id).map(p -> {
+            p.setActivo(false);
+            pagoMultaRepository.save(p);
+            return true;
+        }).orElse(false);
+    }
+
     public PagoMulta guardar(PagoMulta pago) {
+        if (pago.getActivo() == null) {
+            pago.setActivo(true);
+        }
         return pagoMultaRepository.save(pago);
     }
 }

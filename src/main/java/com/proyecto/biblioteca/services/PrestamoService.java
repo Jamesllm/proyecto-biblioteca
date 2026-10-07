@@ -42,25 +42,25 @@ public class PrestamoService {
 
     @Transactional(readOnly = true)
     public List<Prestamo> listarTodos() {
-        return prestamoRepository.findAll();
+        return prestamoRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Prestamo> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return prestamoRepository.findById(id);
+        return prestamoRepository.findByIdAndActivoTrue(id);
     }
 
     @Transactional(readOnly = true)
     public List<Prestamo> listarPorUsuario(Long idUsuario) {
         if (idUsuario == null) return List.of();
-        return prestamoRepository.findByIdUsuario(idUsuario);
+        return prestamoRepository.findByIdUsuarioAndActivoTrue(idUsuario);
     }
 
     @Transactional(readOnly = true)
     public List<Prestamo> listarActivosPorUsuario(Long idUsuario) {
         if (idUsuario == null) return List.of();
-        return prestamoRepository.findByIdUsuarioAndEstadoIn(idUsuario, List.of("ACTIVO", "VENCIDO"));
+        return prestamoRepository.findByIdUsuarioAndEstadoInAndActivoTrue(idUsuario, List.of("ACTIVO", "VENCIDO"));
     }
 
     public Prestamo registrarPrestamo(Prestamo prestamo) {
@@ -163,7 +163,7 @@ public class PrestamoService {
 
     public Optional<Prestamo> actualizar(Long id, Prestamo prestamoActualizado) {
         if (id == null) return Optional.empty();
-        return prestamoRepository.findById(id).map(existente -> {
+        return prestamoRepository.findByIdAndActivoTrue(id).map(existente -> {
             existente.setEstado(prestamoActualizado.getEstado());
             existente.setFechaHoraDevolucionEsperada(prestamoActualizado.getFechaHoraDevolucionEsperada());
             existente.setFechaHoraDevolucionReal(prestamoActualizado.getFechaHoraDevolucionReal());
@@ -172,18 +172,21 @@ public class PrestamoService {
     }
 
     public boolean eliminar(Long id) {
-        if (id != null && prestamoRepository.existsById(id)) {
-            Prestamo p = prestamoRepository.findById(id).orElse(null);
-            if (p != null && "ACTIVO".equalsIgnoreCase(p.getEstado())) {
+        if (id == null) return false;
+        return prestamoRepository.findByIdAndActivoTrue(id).map(p -> {
+            if ("ACTIVO".equalsIgnoreCase(p.getEstado())) {
                 ejemplarService.cambiarEstado(p.getIdEjemplar(), "DISPONIBLE");
             }
-            prestamoRepository.deleteById(id);
+            p.setActivo(false);
+            prestamoRepository.save(p);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public Prestamo guardar(Prestamo prestamo) {
+        if (prestamo.getActivo() == null) {
+            prestamo.setActivo(true);
+        }
         return prestamoRepository.save(prestamo);
     }
 

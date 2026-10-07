@@ -34,6 +34,9 @@ public class Ejemplar {
     @Column(name = "estado", length = 30)
     private String estado = "DISPONIBLE";
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "isbn", referencedColumnName = "isbn", insertable = false, updatable = false)
     private Libro libro;
@@ -45,9 +48,10 @@ public class Ejemplar {
         this.ubicacion = ubicacion;
         this.estadoConservacion = estadoConservacion != null ? estadoConservacion : "BUENO";
         this.estado = estado != null ? estado : "DISPONIBLE";
+        this.activo = true;
     }
 
     public boolean isDisponible() {
-        return "DISPONIBLE".equalsIgnoreCase(this.estado);
+        return Boolean.TRUE.equals(this.activo) && "DISPONIBLE".equalsIgnoreCase(this.estado);
     }
 }

@@ -24,4 +24,15 @@ public class Autor {
 
     @Column(columnDefinition = "TEXT")
     private String biografia;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
+    public Autor(Long id, String nombre, String nacionalidad, String biografia) {
+        this.id = id;
+        this.nombre = nombre;
+        this.nacionalidad = nacionalidad;
+        this.biografia = biografia;
+        this.activo = true;
+    }
 }

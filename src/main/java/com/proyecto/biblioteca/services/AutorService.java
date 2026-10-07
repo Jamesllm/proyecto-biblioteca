@@ -20,21 +20,24 @@ public class AutorService {
 
     @Transactional(readOnly = true)
     public List<Autor> listarTodos() {
-        return autorRepository.findAll();
+        return autorRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Autor> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return autorRepository.findById(id);
+        return autorRepository.findByIdAndActivoTrue(id);
     }
 
     public Autor guardar(Autor autor) {
+        if (autor.getActivo() == null) {
+            autor.setActivo(true);
+        }
         return autorRepository.save(autor);
     }
 
     public Optional<Autor> actualizar(Long id, Autor autorActualizado) {
-        return autorRepository.findById(id).map(existente -> {
+        return autorRepository.findByIdAndActivoTrue(id).map(existente -> {
             existente.setNombre(autorActualizado.getNombre());
             existente.setNacionalidad(autorActualizado.getNacionalidad());
             existente.setBiografia(autorActualizado.getBiografia());
@@ -43,10 +46,11 @@ public class AutorService {
     }
 
     public boolean eliminar(Long id) {
-        if (id != null && autorRepository.existsById(id)) {
-            autorRepository.deleteById(id);
+        if (id == null) return false;
+        return autorRepository.findByIdAndActivoTrue(id).map(autor -> {
+            autor.setActivo(false);
+            autorRepository.save(autor);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 }

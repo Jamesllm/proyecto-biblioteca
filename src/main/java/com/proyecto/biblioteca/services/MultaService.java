@@ -21,31 +21,31 @@ public class MultaService {
 
     @Transactional(readOnly = true)
     public List<Multa> listarTodas() {
-        return multaRepository.findAll();
+        return multaRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Multa> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return multaRepository.findById(id);
+        return multaRepository.findByIdAndActivoTrue(id);
     }
 
     @Transactional(readOnly = true)
     public List<Multa> listarPorUsuario(Long idUsuario) {
         if (idUsuario == null) return List.of();
-        return multaRepository.findByIdUsuario(idUsuario);
+        return multaRepository.findByIdUsuarioAndActivoTrue(idUsuario);
     }
 
     @Transactional(readOnly = true)
     public List<Multa> listarPendientesPorUsuario(Long idUsuario) {
         if (idUsuario == null) return List.of();
-        return multaRepository.findByIdUsuarioAndEstadoIgnoreCase(idUsuario, "PENDIENTE");
+        return multaRepository.findByIdUsuarioAndEstadoIgnoreCaseAndActivoTrue(idUsuario, "PENDIENTE");
     }
 
     @Transactional(readOnly = true)
     public Optional<Multa> buscarPorPrestamo(Long idPrestamo) {
         if (idPrestamo == null) return Optional.empty();
-        return multaRepository.findByIdPrestamo(idPrestamo);
+        return multaRepository.findByIdPrestamoAndActivoTrue(idPrestamo);
     }
 
     public Multa generarMultaPorRetraso(Long idPrestamo, Long idUsuario, long horasRetraso, int diasRetraso, double monto) {
@@ -59,6 +59,7 @@ public class MultaService {
         multa.setMotivo("Retraso en devolución de " + diasRetraso + " día(s) (" + horasRetraso + " hrs)");
         multa.setFechaHoraEmision(LocalDateTime.now());
         multa.setEstado("PENDIENTE");
+        multa.setActivo(true);
         return multaRepository.save(multa);
     }
 
@@ -71,6 +72,7 @@ public class MultaService {
         multa.setMotivo(motivo != null && !motivo.isBlank() ? motivo : "Deterioro/Daño en ejemplar retornado");
         multa.setFechaHoraEmision(LocalDateTime.now());
         multa.setEstado("PENDIENTE");
+        multa.setActivo(true);
         return multaRepository.save(multa);
     }
 
@@ -87,12 +89,15 @@ public class MultaService {
         if (multa.getEstado() == null || multa.getEstado().isBlank()) {
             multa.setEstado("PENDIENTE");
         }
+        if (multa.getActivo() == null) {
+            multa.setActivo(true);
+        }
         return multaRepository.save(multa);
     }
 
     public Optional<Multa> actualizar(Long id, Multa multaActualizada) {
         if (id == null) return Optional.empty();
-        return multaRepository.findById(id).map(existente -> {
+        return multaRepository.findByIdAndActivoTrue(id).map(existente -> {
             existente.setMonto(multaActualizada.getMonto());
             existente.setMotivo(multaActualizada.getMotivo());
             existente.setTipoMulta(multaActualizada.getTipoMulta());
@@ -103,7 +108,7 @@ public class MultaService {
 
     public boolean marcarComoPagada(Long id) {
         if (id == null) return false;
-        return multaRepository.findById(id).map(m -> {
+        return multaRepository.findByIdAndActivoTrue(id).map(m -> {
             m.setEstado("PAGADA");
             multaRepository.save(m);
             return true;
@@ -112,7 +117,7 @@ public class MultaService {
 
     public boolean anularMulta(Long id) {
         if (id == null) return false;
-        return multaRepository.findById(id).map(m -> {
+        return multaRepository.findByIdAndActivoTrue(id).map(m -> {
             m.setEstado("ANULADA");
             multaRepository.save(m);
             return true;
@@ -120,14 +125,18 @@ public class MultaService {
     }
 
     public boolean eliminar(Long id) {
-        if (id != null && multaRepository.existsById(id)) {
-            multaRepository.deleteById(id);
+        if (id == null) return false;
+        return multaRepository.findByIdAndActivoTrue(id).map(m -> {
+            m.setActivo(false);
+            multaRepository.save(m);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public Multa guardar(Multa multa) {
+        if (multa.getActivo() == null) {
+            multa.setActivo(true);
+        }
         return multaRepository.save(multa);
     }
 }

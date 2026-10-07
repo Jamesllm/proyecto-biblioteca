@@ -20,21 +20,24 @@ public class EditorialService {
 
     @Transactional(readOnly = true)
     public List<Editorial> listarTodas() {
-        return editorialRepository.findAll();
+        return editorialRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Editorial> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return editorialRepository.findById(id);
+        return editorialRepository.findByIdAndActivoTrue(id);
     }
 
     public Editorial guardar(Editorial editorial) {
+        if (editorial.getActivo() == null) {
+            editorial.setActivo(true);
+        }
         return editorialRepository.save(editorial);
     }
 
     public Optional<Editorial> actualizar(Long id, Editorial editorialActualizada) {
-        return editorialRepository.findById(id).map(existente -> {
+        return editorialRepository.findByIdAndActivoTrue(id).map(existente -> {
             existente.setNombre(editorialActualizada.getNombre());
             existente.setPais(editorialActualizada.getPais());
             existente.setContacto(editorialActualizada.getContacto());
@@ -43,10 +46,11 @@ public class EditorialService {
     }
 
     public boolean eliminar(Long id) {
-        if (id != null && editorialRepository.existsById(id)) {
-            editorialRepository.deleteById(id);
+        if (id == null) return false;
+        return editorialRepository.findByIdAndActivoTrue(id).map(editorial -> {
+            editorial.setActivo(false);
+            editorialRepository.save(editorial);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 }

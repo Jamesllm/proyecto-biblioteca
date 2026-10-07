@@ -20,19 +20,19 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<Usuario> listarTodos() {
-        return usuarioRepository.findAll();
+        return usuarioRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Usuario> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return usuarioRepository.findById(id);
+        return usuarioRepository.findByIdAndActivoTrue(id);
     }
 
     @Transactional(readOnly = true)
     public Optional<Usuario> buscarPorDni(String dni) {
         if (dni == null) return Optional.empty();
-        return usuarioRepository.findByDni(dni.trim());
+        return usuarioRepository.findByDniAndActivoTrue(dni.trim());
     }
 
     public Usuario guardar(Usuario usuario) {
@@ -42,12 +42,15 @@ public class UsuarioService {
         if (usuario.getTipoUsuario() == null || usuario.getTipoUsuario().isBlank()) {
             usuario.setTipoUsuario("ESTUDIANTE");
         }
+        if (usuario.getActivo() == null) {
+            usuario.setActivo(true);
+        }
         return usuarioRepository.save(usuario);
     }
 
     public Optional<Usuario> actualizar(Long id, Usuario usuarioActualizado) {
         if (id == null) return Optional.empty();
-        return usuarioRepository.findById(id).map(existente -> {
+        return usuarioRepository.findByIdAndActivoTrue(id).map(existente -> {
             existente.setDni(usuarioActualizado.getDni());
             existente.setNombre(usuarioActualizado.getNombre());
             existente.setEmail(usuarioActualizado.getEmail());
@@ -60,16 +63,17 @@ public class UsuarioService {
     }
 
     public boolean eliminar(Long id) {
-        if (id != null && usuarioRepository.existsById(id)) {
-            usuarioRepository.deleteById(id);
+        if (id == null) return false;
+        return usuarioRepository.findByIdAndActivoTrue(id).map(u -> {
+            u.setActivo(false);
+            usuarioRepository.save(u);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public boolean sancionarUsuario(Long id) {
         if (id == null) return false;
-        return usuarioRepository.findById(id).map(u -> {
+        return usuarioRepository.findByIdAndActivoTrue(id).map(u -> {
             u.setEstado("SANCIONADO");
             usuarioRepository.save(u);
             return true;
@@ -78,7 +82,7 @@ public class UsuarioService {
 
     public boolean activarUsuario(Long id) {
         if (id == null) return false;
-        return usuarioRepository.findById(id).map(u -> {
+        return usuarioRepository.findByIdAndActivoTrue(id).map(u -> {
             u.setEstado("ACTIVO");
             usuarioRepository.save(u);
             return true;

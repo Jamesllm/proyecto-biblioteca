@@ -38,6 +38,9 @@ public class Prestamo {
     @Column(name = "estado", length = 30)
     private String estado = "ACTIVO"; // "ACTIVO", "DEVUELTO", "VENCIDO"
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_ejemplar", insertable = false, updatable = false)
     private Ejemplar ejemplar;
@@ -55,5 +58,6 @@ public class Prestamo {
         this.fechaHoraDevolucionEsperada = fechaHoraDevolucionEsperada;
         this.fechaHoraDevolucionReal = fechaHoraDevolucionReal;
         this.estado = estado != null ? estado : "ACTIVO";
+        this.activo = true;
     }
 }

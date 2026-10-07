@@ -29,25 +29,25 @@ public class ReservaService {
 
     @Transactional(readOnly = true)
     public List<Reserva> listarTodas() {
-        return reservaRepository.findAll();
+        return reservaRepository.findByActivoTrue();
     }
 
     @Transactional(readOnly = true)
     public Optional<Reserva> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return reservaRepository.findById(id);
+        return reservaRepository.findByIdAndActivoTrue(id);
     }
 
     @Transactional(readOnly = true)
     public List<Reserva> listarPorUsuario(Long idUsuario) {
         if (idUsuario == null) return List.of();
-        return reservaRepository.findByIdUsuario(idUsuario);
+        return reservaRepository.findByIdUsuarioAndActivoTrue(idUsuario);
     }
 
     @Transactional(readOnly = true)
     public List<Reserva> listarPorIsbn(String isbn) {
         if (isbn == null) return List.of();
-        return reservaRepository.findByIsbn(isbn.trim());
+        return reservaRepository.findByIsbnAndActivoTrue(isbn.trim());
     }
 
     public Reserva crearReserva(Reserva reserva) {
@@ -55,12 +55,12 @@ public class ReservaService {
             throw new IllegalArgumentException("El ISBN del libro y el ID del usuario son obligatorios.");
         }
 
-        if (!usuarioRepository.existsById(reserva.getIdUsuario())) {
-            throw new IllegalArgumentException("El usuario con ID " + reserva.getIdUsuario() + " no existe.");
+        if (usuarioRepository.findByIdAndActivoTrue(reserva.getIdUsuario()).isEmpty()) {
+            throw new IllegalArgumentException("El usuario con ID " + reserva.getIdUsuario() + " no existe o está inactivo.");
         }
 
-        if (!libroRepository.existsById(reserva.getIsbn().trim())) {
-            throw new IllegalArgumentException("El libro con ISBN " + reserva.getIsbn() + " no existe.");
+        if (libroRepository.findByIsbnAndActivoTrue(reserva.getIsbn().trim()).isEmpty()) {
+            throw new IllegalArgumentException("El libro con ISBN " + reserva.getIsbn() + " no existe o está inactivo.");
         }
 
         if (reserva.getFechaHoraReserva() == null) {
@@ -70,13 +70,14 @@ public class ReservaService {
             reserva.setFechaHoraExpiracion(reserva.getFechaHoraReserva().plusDays(3));
         }
         reserva.setEstado("PENDIENTE");
+        reserva.setActivo(true);
 
         return reservaRepository.save(reserva);
     }
 
     public boolean cancelarReserva(Long id) {
         if (id == null) return false;
-        return reservaRepository.findById(id).map(r -> {
+        return reservaRepository.findByIdAndActivoTrue(id).map(r -> {
             r.setEstado("CANCELADA");
             reservaRepository.save(r);
             return true;
@@ -85,7 +86,7 @@ public class ReservaService {
 
     public boolean atenderReserva(Long id) {
         if (id == null) return false;
-        return reservaRepository.findById(id).map(r -> {
+        return reservaRepository.findByIdAndActivoTrue(id).map(r -> {
             r.setEstado("ATENDIDA");
             reservaRepository.save(r);
             return true;
@@ -93,10 +94,11 @@ public class ReservaService {
     }
 
     public boolean eliminar(Long id) {
-        if (id != null && reservaRepository.existsById(id)) {
-            reservaRepository.deleteById(id);
+        if (id == null) return false;
+        return reservaRepository.findByIdAndActivoTrue(id).map(r -> {
+            r.setActivo(false);
+            reservaRepository.save(r);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 }

@@ -49,7 +49,25 @@ public class Usuario {
     @Column(name = "estado", length = 30)
     private String estado = "ACTIVO"; // "ACTIVO", "SANCIONADO", "INACTIVO"
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
+    public Usuario(Long id, String dni, String nombre, String email, String password, String telefono,
+                   String direccion, String tipoUsuario, String rol, String estado) {
+        this.id = id;
+        this.dni = dni;
+        this.nombre = nombre;
+        this.email = email;
+        this.password = password;
+        this.telefono = telefono;
+        this.direccion = direccion;
+        this.tipoUsuario = tipoUsuario != null ? tipoUsuario : "ESTUDIANTE";
+        this.rol = rol != null ? rol : "ROLE_ESTUDIANTE";
+        this.estado = estado != null ? estado : "ACTIVO";
+        this.activo = true;
+    }
+
     public boolean isActivo() {
-        return "ACTIVO".equalsIgnoreCase(this.estado);
+        return Boolean.TRUE.equals(this.activo) && "ACTIVO".equalsIgnoreCase(this.estado);
     }
 }

@@ -23,4 +23,15 @@ public class Editorial {
     private String pais;
 
     private String contacto;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
+    public Editorial(Long id, String nombre, String pais, String contacto) {
+        this.id = id;
+        this.nombre = nombre;
+        this.pais = pais;
+        this.contacto = contacto;
+        this.activo = true;
+    }
 }
