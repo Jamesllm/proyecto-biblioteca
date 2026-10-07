@@ -15,12 +15,12 @@ public class UsuarioService {
     private final AtomicLong idGenerator = new AtomicLong(0);
 
     public UsuarioService() {
-        // Datos iniciales de prueba (mínimo 5 registros)
-        guardar(new Usuario(null, "Carlos Mendoza", "carlos.mendoza@email.com", "+51 987654321", "Av. Javier Prado 1234, Lima"));
-        guardar(new Usuario(null, "Lucía Fernández", "lucia.fernandez@email.com", "+51 912345678", "Calle Los Pinos 456, Arequipa"));
-        guardar(new Usuario(null, "Mateo Romero", "mateo.romero@email.com", "+51 955443322", "Jr. Huancavelica 789, Trujillo"));
-        guardar(new Usuario(null, "Valeria Castillo", "valeria.castillo@email.com", "+51 977889900", "Av. España 321, Cusco"));
-        guardar(new Usuario(null, "Diego Salazar", "diego.salazar@email.com", "+51 944556677", "Calle Tacna 654, Chiclayo"));
+        // Datos iniciales de usuarios
+        guardar(new Usuario(null, "72849102", "Carlos Mendoza", "carlos.mendoza@email.com", "+51 987654321", "Av. Javier Prado 1234, Lima", "ESTUDIANTE", "ACTIVO"));
+        guardar(new Usuario(null, "45920183", "Lucía Fernández", "lucia.fernandez@email.com", "+51 912345678", "Calle Los Pinos 456, Arequipa", "DOCENTE", "ACTIVO"));
+        guardar(new Usuario(null, "71283940", "Mateo Romero", "mateo.romero@email.com", "+51 955443322", "Jr. Huancavelica 789, Trujillo", "ESTUDIANTE", "ACTIVO"));
+        guardar(new Usuario(null, "09283741", "Valeria Castillo", "valeria.castillo@email.com", "+51 977889900", "Av. España 321, Cusco", "DOCENTE", "ACTIVO"));
+        guardar(new Usuario(null, "78392019", "Diego Salazar", "diego.salazar@email.com", "+51 944556677", "Calle Tacna 654, Chiclayo", "ESTUDIANTE", "ACTIVO"));
     }
 
     public List<Usuario> listarTodos() {
@@ -28,6 +28,7 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> buscarPorId(Long id) {
+        if (id == null) return Optional.empty();
         return Optional.ofNullable(usuarios.get(id));
     }
 
@@ -37,16 +38,45 @@ public class UsuarioService {
         } else {
             idGenerator.updateAndGet(current -> Math.max(current, usuario.getId()));
         }
+        if (usuario.getEstado() == null || usuario.getEstado().isBlank()) {
+            usuario.setEstado("ACTIVO");
+        }
+        if (usuario.getTipoUsuario() == null || usuario.getTipoUsuario().isBlank()) {
+            usuario.setTipoUsuario("ESTUDIANTE");
+        }
         usuarios.put(usuario.getId(), usuario);
         return usuario;
     }
 
     public Optional<Usuario> actualizar(Long id, Usuario usuarioActualizado) {
-        if (!usuarios.containsKey(id)) {
+        if (id == null || !usuarios.containsKey(id)) {
             return Optional.empty();
         }
         usuarioActualizado.setId(id);
         usuarios.put(id, usuarioActualizado);
         return Optional.of(usuarioActualizado);
+    }
+
+    public boolean eliminar(Long id) {
+        if (id == null) return false;
+        return usuarios.remove(id) != null;
+    }
+
+    public boolean sancionarUsuario(Long id) {
+        Usuario usuario = usuarios.get(id);
+        if (usuario != null) {
+            usuario.setEstado("SANCIONADO");
+            return true;
+        }
+        return false;
+    }
+
+    public boolean activarUsuario(Long id) {
+        Usuario usuario = usuarios.get(id);
+        if (usuario != null) {
+            usuario.setEstado("ACTIVO");
+            return true;
+        }
+        return false;
     }
 }
