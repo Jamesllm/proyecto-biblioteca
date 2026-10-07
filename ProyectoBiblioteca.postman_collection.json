@@ -1,13 +1,13 @@
 {
 	"info": {
 		"_postman_id": "a5e8f49a-32c0-43b9-a9a7-96a938634125",
-		"name": "Proyecto Biblioteca API (Fase 3 - JWT & PostgreSQL)",
-		"description": "Colección completa de peticiones HTTP para el Sistema de Gestión de Biblioteca (Java 21, Spring Boot, PostgreSQL, Spring Security & JWT).",
+		"name": "Proyecto Biblioteca API - CRUD Completo & JWT",
+		"description": "Coleccion exhaustiva con todas las operaciones CRUD (GET, POST, PUT, DELETE) y endpoints de negocio para el Sistema de Gestion de Biblioteca (Java 21, Spring Boot, PostgreSQL, Spring Security & JWT).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "0. Autenticación & JWT",
+			"name": "0. Autenticacion & JWT",
 			"item": [
 				{
 					"name": "Login Administrador",
@@ -31,6 +31,32 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"email\": \"admin@biblioteca.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": "{{baseUrl}}/api/auth/login"
+					}
+				},
+				{
+					"name": "Login Bibliotecario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set('token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"bibliotecario@biblioteca.com\",\n  \"password\": \"biblio123\"\n}"
 						},
 						"url": "{{baseUrl}}/api/auth/login"
 					}
@@ -62,7 +88,7 @@
 					}
 				},
 				{
-					"name": "Registro de Nuevo Usuario",
+					"name": "Registro de Nuevo Usuario (POST)",
 					"request": {
 						"method": "POST",
 						"header": [{"key": "Content-Type", "value": "application/json"}],
@@ -74,7 +100,7 @@
 					}
 				},
 				{
-					"name": "Obtener Perfil Actual (Requiere Token)",
+					"name": "Obtener Perfil Actual (GET /me)",
 					"request": {
 						"method": "GET",
 						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
@@ -87,7 +113,7 @@
 			"name": "1. Inicio y Estado",
 			"item": [
 				{
-					"name": "Información de la API",
+					"name": "Informacion de la API (GET /)",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/"
@@ -96,31 +122,38 @@
 			]
 		},
 		{
-			"name": "2. Libros (Catálogo por ISBN)",
+			"name": "2. Libros (Catalogo por ISBN)",
 			"item": [
 				{
-					"name": "Listar todos los libros (Público)",
+					"name": "Listar todos los libros (GET)",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/libros"
 					}
 				},
 				{
-					"name": "Obtener libro por ISBN",
+					"name": "Obtener libro por ISBN (GET)",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/libros/978-0307474728"
 					}
 				},
 				{
-					"name": "Ver ejemplares de un libro por ISBN",
+					"name": "Ver ejemplares de un libro por ISBN (GET)",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/libros/978-0307474728/ejemplares"
 					}
 				},
 				{
-					"name": "Crear nuevo libro (Requiere Token)",
+					"name": "Ver ejemplares disponibles de un ISBN (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/libros/978-0307474728/ejemplares/disponibles"
+					}
+				},
+				{
+					"name": "Crear nuevo libro (POST)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -133,21 +166,65 @@
 						},
 						"url": "{{baseUrl}}/api/libros"
 					}
+				},
+				{
+					"name": "Actualizar libro por ISBN (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"isbn\": \"978-0307474728\",\n  \"titulo\": \"Cien años de soledad (Edición Especial Ilustrada)\",\n  \"sinopsis\": \"Edición conmemorativa con ilustraciones y notas críticas\",\n  \"idAutor\": 1,\n  \"idCategoria\": 1,\n  \"idEditorial\": 1,\n  \"anioPublicacion\": 1967\n}"
+						},
+						"url": "{{baseUrl}}/api/libros/978-0307474728"
+					}
+				},
+				{
+					"name": "Eliminar libro por ISBN (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/libros/978-8437604183"
+					}
 				}
 			]
 		},
 		{
-			"name": "3. Ejemplares (Copias Físicas)",
+			"name": "3. Ejemplares (Copias Fisicas)",
 			"item": [
 				{
-					"name": "Listar todos los ejemplares",
+					"name": "Listar todos los ejemplares (GET)",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/ejemplares"
 					}
 				},
 				{
-					"name": "Crear nueva copia de libro (Requiere Token)",
+					"name": "Obtener ejemplar por ID (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/ejemplares/1"
+					}
+				},
+				{
+					"name": "Listar ejemplares por ISBN (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/ejemplares/libro/978-0307474728"
+					}
+				},
+				{
+					"name": "Listar ejemplares disponibles por ISBN (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/ejemplares/libro/978-0307474728/disponibles"
+					}
+				},
+				{
+					"name": "Crear nuevo ejemplar (POST)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -160,14 +237,37 @@
 						},
 						"url": "{{baseUrl}}/api/ejemplares"
 					}
+				},
+				{
+					"name": "Actualizar ejemplar (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"isbn\": \"978-0307474728\",\n  \"numeroCopia\": 1,\n  \"ubicacion\": \"Estantería A-1, Nivel 1 (Reubicado)\",\n  \"estadoConservacion\": \"BUENO\",\n  \"estado\": \"DISPONIBLE\"\n}"
+						},
+						"url": "{{baseUrl}}/api/ejemplares/1"
+					}
+				},
+				{
+					"name": "Eliminar/Dar de baja ejemplar (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/ejemplares/1"
+					}
 				}
 			]
 		},
 		{
-			"name": "4. Usuarios & Consultas de Préstamos",
+			"name": "4. Usuarios & Consultas de Prestamos",
 			"item": [
 				{
-					"name": "Listar usuarios (Requiere Token)",
+					"name": "Listar usuarios (GET)",
 					"request": {
 						"method": "GET",
 						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
@@ -175,7 +275,15 @@
 					}
 				},
 				{
-					"name": "Consultar historial detallado de préstamos del usuario",
+					"name": "Obtener usuario por ID (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/usuarios/3"
+					}
+				},
+				{
+					"name": "Consultar historial detallado de prestamos (GET)",
 					"request": {
 						"method": "GET",
 						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
@@ -183,20 +291,66 @@
 					}
 				},
 				{
-					"name": "Consultar libros prestados activos del usuario",
+					"name": "Consultar libros prestados activos del usuario (GET)",
 					"request": {
 						"method": "GET",
 						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
 						"url": "{{baseUrl}}/api/usuarios/3/prestamos/activos"
 					}
+				},
+				{
+					"name": "Consultar multas del usuario (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/usuarios/3/multas"
+					}
+				},
+				{
+					"name": "Crear usuario (POST)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dni\": \"72849102\",\n  \"nombre\": \"Mariana Rios\",\n  \"email\": \"mariana.rios@email.com\",\n  \"password\": \"mariana123\",\n  \"telefono\": \"+51 933221100\",\n  \"direccion\": \"Av. Las Begonias 320\",\n  \"tipoUsuario\": \"ESTUDIANTE\",\n  \"rol\": \"ROLE_ESTUDIANTE\",\n  \"estado\": \"ACTIVO\"\n}"
+						},
+						"url": "{{baseUrl}}/api/usuarios"
+					}
+				},
+				{
+					"name": "Actualizar usuario (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dni\": \"72849102\",\n  \"nombre\": \"Carlos Mendoza Actualizado\",\n  \"email\": \"carlos.mendoza@email.com\",\n  \"telefono\": \"+51 999888777\",\n  \"direccion\": \"Av. Javier Prado 1234, Lima\",\n  \"tipoUsuario\": \"ESTUDIANTE\",\n  \"rol\": \"ROLE_ESTUDIANTE\",\n  \"estado\": \"ACTIVO\"\n}"
+						},
+						"url": "{{baseUrl}}/api/usuarios/3"
+					}
+				},
+				{
+					"name": "Eliminar usuario (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/usuarios/5"
+					}
 				}
 			]
 		},
 		{
-			"name": "5. Préstamos y Devoluciones",
+			"name": "5. Prestamos y Devoluciones",
 			"item": [
 				{
-					"name": "Listar todos los préstamos",
+					"name": "Listar todos los prestamos (GET)",
 					"request": {
 						"method": "GET",
 						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
@@ -204,7 +358,31 @@
 					}
 				},
 				{
-					"name": "Registrar nuevo préstamo",
+					"name": "Obtener prestamo por ID (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/prestamos/1"
+					}
+				},
+				{
+					"name": "Obtener detalle completo de un prestamo (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/prestamos/1/detalle"
+					}
+				},
+				{
+					"name": "Listar prestamos por usuario (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/prestamos/usuario/3"
+					}
+				},
+				{
+					"name": "Registrar nuevo prestamo (POST)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -219,7 +397,7 @@
 					}
 				},
 				{
-					"name": "Registrar Devolución (Calcula mora automáticamente)",
+					"name": "Registrar Devolucion con calculo de mora (PUT /devolver)",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -228,18 +406,41 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"fechaHoraDevolucionReal\": \"2026-10-25T11:30:00\",\n  \"estadoConservacion\": \"BUENO\",\n  \"observaciones\": \"Devuelto con retraso\"\n}"
+							"raw": "{\n  \"fechaHoraDevolucionReal\": \"2026-10-25T11:30:00\",\n  \"estadoConservacion\": \"BUENO\",\n  \"observaciones\": \"Devuelto en buenas condiciones con retraso\",\n  \"montoDanoExtra\": 0.0\n}"
 						},
 						"url": "{{baseUrl}}/api/prestamos/1/devolver"
+					}
+				},
+				{
+					"name": "Actualizar prestamo (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idEjemplar\": 1,\n  \"idUsuario\": 3,\n  \"fechaHoraPrestamo\": \"2026-10-01T10:00:00\",\n  \"fechaHoraDevolucionEsperada\": \"2026-10-20T18:00:00\",\n  \"estado\": \"ACTIVO\"\n}"
+						},
+						"url": "{{baseUrl}}/api/prestamos/1"
+					}
+				},
+				{
+					"name": "Eliminar prestamo (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/prestamos/1"
 					}
 				}
 			]
 		},
 		{
-			"name": "6. Multas y Pagos",
+			"name": "6. Multas y Sanciones",
 			"item": [
 				{
-					"name": "Listar todas las multas",
+					"name": "Listar todas las multas (GET)",
 					"request": {
 						"method": "GET",
 						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
@@ -247,7 +448,46 @@
 					}
 				},
 				{
-					"name": "Pagar Multa (Emite comprobante y desbloquea usuario)",
+					"name": "Obtener multa por ID (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/multas/1"
+					}
+				},
+				{
+					"name": "Listar multas de un usuario (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/multas/usuario/3"
+					}
+				},
+				{
+					"name": "Listar multas pendientes de un usuario (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/multas/usuario/3/pendientes"
+					}
+				},
+				{
+					"name": "Crear multa manual (POST)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idPrestamo\": 1,\n  \"idUsuario\": 3,\n  \"tipoMulta\": \"DAÑO\",\n  \"monto\": 25.00,\n  \"motivo\": \"Daño en portada y páginas rasgadas\",\n  \"estado\": \"PENDIENTE\"\n}"
+						},
+						"url": "{{baseUrl}}/api/multas"
+					}
+				},
+				{
+					"name": "Pagar Multa y Desbloquear Usuario (POST /pagar)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -260,30 +500,352 @@
 						},
 						"url": "{{baseUrl}}/api/multas/1/pagar"
 					}
-				}
-			]
-		},
-		{
-			"name": "7. Reservas",
-			"item": [
+				},
 				{
-					"name": "Listar reservas activas",
+					"name": "Actualizar multa (PUT)",
 					"request": {
-						"method": "GET",
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idPrestamo\": 1,\n  \"idUsuario\": 3,\n  \"tipoMulta\": \"RETRASO\",\n  \"monto\": 20.00,\n  \"motivo\": \"Retraso actualizado\",\n  \"estado\": \"PENDIENTE\"\n}"
+						},
+						"url": "{{baseUrl}}/api/multas/1"
+					}
+				},
+				{
+					"name": "Anular/Eliminar multa (DELETE)",
+					"request": {
+						"method": "DELETE",
 						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-						"url": "{{baseUrl}}/api/reservas"
+						"url": "{{baseUrl}}/api/multas/1"
 					}
 				}
 			]
 		},
 		{
-			"name": "8. Reportes & Dashboard",
+			"name": "7. Pagos de Multas (Auditoria)",
 			"item": [
 				{
-					"name": "Dashboard general",
+					"name": "Listar todos los pagos (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/pagos-multas"
+					}
+				},
+				{
+					"name": "Obtener pago por ID (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/pagos-multas/1"
+					}
+				},
+				{
+					"name": "Listar pagos de una multa (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/pagos-multas/multa/3"
+					}
+				},
+				{
+					"name": "Procesar pago de multa (POST)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"montoPagado\": 25.50,\n  \"metodoPago\": \"TARJETA\",\n  \"comprobante\": \"BOL-000889\"\n}"
+						},
+						"url": "{{baseUrl}}/api/pagos-multas/multa/2"
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Reservas de Libros",
+			"item": [
+				{
+					"name": "Listar todas las reservas (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/reservas"
+					}
+				},
+				{
+					"name": "Obtener reserva por ID (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/reservas/1"
+					}
+				},
+				{
+					"name": "Listar reservas por usuario (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/reservas/usuario/3"
+					}
+				},
+				{
+					"name": "Listar reservas por ISBN (GET)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/reservas/libro/978-0307474728"
+					}
+				},
+				{
+					"name": "Crear reserva (POST)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"isbn\": \"978-0307474728\",\n  \"idUsuario\": 3\n}"
+						},
+						"url": "{{baseUrl}}/api/reservas"
+					}
+				},
+				{
+					"name": "Cancelar reserva (PUT /cancelar)",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/reservas/1/cancelar"
+					}
+				},
+				{
+					"name": "Atender reserva (PUT /atender)",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/reservas/1/atender"
+					}
+				},
+				{
+					"name": "Eliminar reserva (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/reservas/1"
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Autores",
+			"item": [
+				{
+					"name": "Listar autores (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/autores"
+					}
+				},
+				{
+					"name": "Obtener autor por ID (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/autores/1"
+					}
+				},
+				{
+					"name": "Crear autor (POST)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Octavio Paz\",\n  \"nacionalidad\": \"Mexicana\",\n  \"biografia\": \"Premio Nobel de Literatura 1990, poeta y ensayista.\"\n}"
+						},
+						"url": "{{baseUrl}}/api/autores"
+					}
+				},
+				{
+					"name": "Actualizar autor (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Gabriel García Márquez (Actualizado)\",\n  \"nacionalidad\": \"Colombiana\",\n  \"biografia\": \"Premio Nobel de Literatura 1982. Máximo exponente del realismo mágico latinoamericano.\"\n}"
+						},
+						"url": "{{baseUrl}}/api/autores/1"
+					}
+				},
+				{
+					"name": "Eliminar autor (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/autores/6"
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Categorias",
+			"item": [
+				{
+					"name": "Listar categorias (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/categorias"
+					}
+				},
+				{
+					"name": "Obtener categoria por ID (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/categorias/1"
+					}
+				},
+				{
+					"name": "Crear categoria (POST)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Ciencia Ficción\",\n  \"descripcion\": \"Narrativa especulativa basada en avances científicos y futuristas.\"\n}"
+						},
+						"url": "{{baseUrl}}/api/categorias"
+					}
+				},
+				{
+					"name": "Actualizar categoria (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Realismo Mágico Actualizado\",\n  \"descripcion\": \"Obras que fusionan la realidad cotidiana con elementos fantásticos.\"\n}"
+						},
+						"url": "{{baseUrl}}/api/categorias/1"
+					}
+				},
+				{
+					"name": "Eliminar categoria (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/categorias/6"
+					}
+				}
+			]
+		},
+		{
+			"name": "11. Editoriales",
+			"item": [
+				{
+					"name": "Listar editoriales (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/editoriales"
+					}
+				},
+				{
+					"name": "Obtener editorial por ID (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/editoriales/1"
+					}
+				},
+				{
+					"name": "Crear editorial (POST)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Editorial Anagrama\",\n  \"pais\": \"España\",\n  \"contacto\": \"contacto@anagrama-ed.es\"\n}"
+						},
+						"url": "{{baseUrl}}/api/editoriales"
+					}
+				},
+				{
+					"name": "Actualizar editorial (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Editorial Sudamericana (Actualizada)\",\n  \"pais\": \"Argentina\",\n  \"contacto\": \"contacto@sudamericana.com\"\n}"
+						},
+						"url": "{{baseUrl}}/api/editoriales/1"
+					}
+				},
+				{
+					"name": "Eliminar editorial (DELETE)",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/editoriales/6"
+					}
+				}
+			]
+		},
+		{
+			"name": "12. Reportes & Dashboard",
+			"item": [
+				{
+					"name": "Dashboard general (GET)",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/reportes/dashboard"
+					}
+				},
+				{
+					"name": "Reporte de libros por categoria (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/reportes/libros-por-categoria"
+					}
+				},
+				{
+					"name": "Reporte de prestamos por estado (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/reportes/prestamos"
+					}
+				},
+				{
+					"name": "Reporte financiero de multas (GET)",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/reportes/financiero-multas"
 					}
 				}
 			]
