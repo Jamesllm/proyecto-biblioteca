@@ -1,52 +1,51 @@
 package com.proyecto.biblioteca.services;
 
 import com.proyecto.biblioteca.models.Categoria;
+import com.proyecto.biblioteca.repositories.CategoriaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
+@Transactional
 public class CategoriaService {
-    private final ConcurrentHashMap<Long, Categoria> categorias = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(0);
 
-    public CategoriaService() {
-        // Datos iniciales de prueba (mínimo 5 registros)
-        guardar(new Categoria(null, "Novela y Ficción", "Obras literarias de narrativa y ficción general."));
-        guardar(new Categoria(null, "Ciencia y Tecnología", "Libros dedicados a informática, ciencias exactas e ingeniería."));
-        guardar(new Categoria(null, "Historia y Filosofía", "Estudios históricos, ensayos y obras de pensamiento crítico."));
-        guardar(new Categoria(null, "Poesía y Drama", "Colecciones poéticas, dramaturgia y obras teatrales."));
-        guardar(new Categoria(null, "Ciencias Sociales y Educación", "Textos de sociología, pedagogía, psicología y educación."));
+    private final CategoriaRepository categoriaRepository;
+
+    public CategoriaService(CategoriaRepository categoriaRepository) {
+        this.categoriaRepository = categoriaRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Categoria> listarTodas() {
-        return new ArrayList<>(categorias.values());
+        return categoriaRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Categoria> buscarPorId(Long id) {
-        return Optional.ofNullable(categorias.get(id));
+        if (id == null) return Optional.empty();
+        return categoriaRepository.findById(id);
     }
 
     public Categoria guardar(Categoria categoria) {
-        if (categoria.getId() == null || categoria.getId() <= 0) {
-            categoria.setId(idGenerator.incrementAndGet());
-        } else {
-            idGenerator.updateAndGet(current -> Math.max(current, categoria.getId()));
-        }
-        categorias.put(categoria.getId(), categoria);
-        return categoria;
+        return categoriaRepository.save(categoria);
     }
 
     public Optional<Categoria> actualizar(Long id, Categoria categoriaActualizada) {
-        if (!categorias.containsKey(id)) {
-            return Optional.empty();
+        return categoriaRepository.findById(id).map(existente -> {
+            existente.setNombre(categoriaActualizada.getNombre());
+            existente.setDescripcion(categoriaActualizada.getDescripcion());
+            return categoriaRepository.save(existente);
+        });
+    }
+
+    public boolean eliminar(Long id) {
+        if (id != null && categoriaRepository.existsById(id)) {
+            categoriaRepository.deleteById(id);
+            return true;
         }
-        categoriaActualizada.setId(id);
-        categorias.put(id, categoriaActualizada);
-        return Optional.of(categoriaActualizada);
+        return false;
     }
 }

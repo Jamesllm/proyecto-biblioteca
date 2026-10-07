@@ -1,59 +1,51 @@
 package com.proyecto.biblioteca.services;
 
 import com.proyecto.biblioteca.models.Multa;
+import com.proyecto.biblioteca.repositories.MultaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class MultaService {
-    private final ConcurrentHashMap<Long, Multa> multas = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(0);
 
-    public MultaService() {
-        // Multas iniciales de prueba con fecha y hora
-        LocalDateTime ahora = LocalDateTime.now();
-        guardar(new Multa(null, 1L, 1L, "RETRASO", 72L, 3, 15.00, "Entrega con retraso de 3 días", ahora.minusDays(5), "PENDIENTE"));
-        guardar(new Multa(null, 2L, 2L, "DAÑO", 0L, 0, 25.50, "Daño menor en cubierta de libro", ahora.minusDays(3), "PENDIENTE"));
-        guardar(new Multa(null, 3L, 3L, "RETRASO", 48L, 2, 10.00, "Retraso de 2 días en devolución", ahora.minusDays(10), "PAGADA"));
-        guardar(new Multa(null, 4L, 4L, "EXTRAVIO", 0L, 0, 30.00, "Extravío temporal de material", ahora.minusDays(15), "PAGADA"));
-        guardar(new Multa(null, 5L, 5L, "RETRASO", 96L, 4, 20.00, "Retraso de 4 días en fecha límite", ahora.minusDays(2), "PENDIENTE"));
+    private final MultaRepository multaRepository;
+
+    public MultaService(MultaRepository multaRepository) {
+        this.multaRepository = multaRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Multa> listarTodas() {
-        return new ArrayList<>(multas.values());
+        return multaRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Multa> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return Optional.ofNullable(multas.get(id));
+        return multaRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<Multa> listarPorUsuario(Long idUsuario) {
-        if (idUsuario == null) return new ArrayList<>();
-        return multas.values().stream()
-                .filter(m -> idUsuario.equals(m.getIdUsuario()))
-                .collect(Collectors.toList());
+        if (idUsuario == null) return List.of();
+        return multaRepository.findByIdUsuario(idUsuario);
     }
 
+    @Transactional(readOnly = true)
     public List<Multa> listarPendientesPorUsuario(Long idUsuario) {
-        if (idUsuario == null) return new ArrayList<>();
-        return multas.values().stream()
-                .filter(m -> idUsuario.equals(m.getIdUsuario()) && "PENDIENTE".equalsIgnoreCase(m.getEstado()))
-                .collect(Collectors.toList());
+        if (idUsuario == null) return List.of();
+        return multaRepository.findByIdUsuarioAndEstadoIgnoreCase(idUsuario, "PENDIENTE");
     }
 
+    @Transactional(readOnly = true)
     public Optional<Multa> buscarPorPrestamo(Long idPrestamo) {
         if (idPrestamo == null) return Optional.empty();
-        return multas.values().stream()
-                .filter(m -> idPrestamo.equals(m.getIdPrestamo()))
-                .findFirst();
+        return multaRepository.findByIdPrestamo(idPrestamo);
     }
 
     public Multa generarMultaPorRetraso(Long idPrestamo, Long idUsuario, long horasRetraso, int diasRetraso, double monto) {
@@ -67,7 +59,7 @@ public class MultaService {
         multa.setMotivo("Retraso en devolución de " + diasRetraso + " día(s) (" + horasRetraso + " hrs)");
         multa.setFechaHoraEmision(LocalDateTime.now());
         multa.setEstado("PENDIENTE");
-        return guardar(multa);
+        return multaRepository.save(multa);
     }
 
     public Multa generarMultaPorDano(Long idPrestamo, Long idUsuario, double monto, String motivo) {
@@ -79,12 +71,12 @@ public class MultaService {
         multa.setMotivo(motivo != null && !motivo.isBlank() ? motivo : "Deterioro/Daño en ejemplar retornado");
         multa.setFechaHoraEmision(LocalDateTime.now());
         multa.setEstado("PENDIENTE");
-        return guardar(multa);
+        return multaRepository.save(multa);
     }
 
     public Multa registrarMulta(Multa multa) {
         if (multa.getIdUsuario() == null) {
-            throw new IllegalArgumentException("El id del usuario es obligatorio para registrar una multa");
+            throw new IllegalArgumentException("El ID del usuario es obligatorio para registrar una multa");
         }
         if (multa.getMonto() == null || multa.getMonto() <= 0) {
             throw new IllegalArgumentException("El monto de la multa debe ser mayor a 0");
@@ -95,48 +87,47 @@ public class MultaService {
         if (multa.getEstado() == null || multa.getEstado().isBlank()) {
             multa.setEstado("PENDIENTE");
         }
-        return guardar(multa);
+        return multaRepository.save(multa);
     }
 
     public Optional<Multa> actualizar(Long id, Multa multaActualizada) {
-        if (id == null || !multas.containsKey(id)) {
-            return Optional.empty();
-        }
-        multaActualizada.setId(id);
-        multas.put(id, multaActualizada);
-        return Optional.of(multaActualizada);
+        if (id == null) return Optional.empty();
+        return multaRepository.findById(id).map(existente -> {
+            existente.setMonto(multaActualizada.getMonto());
+            existente.setMotivo(multaActualizada.getMotivo());
+            existente.setTipoMulta(multaActualizada.getTipoMulta());
+            existente.setEstado(multaActualizada.getEstado());
+            return multaRepository.save(existente);
+        });
     }
 
     public boolean marcarComoPagada(Long id) {
-        Multa multa = multas.get(id);
-        if (multa != null) {
-            multa.setEstado("PAGADA");
+        if (id == null) return false;
+        return multaRepository.findById(id).map(m -> {
+            m.setEstado("PAGADA");
+            multaRepository.save(m);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public boolean anularMulta(Long id) {
-        Multa multa = multas.get(id);
-        if (multa != null) {
-            multa.setEstado("ANULADA");
+        if (id == null) return false;
+        return multaRepository.findById(id).map(m -> {
+            m.setEstado("ANULADA");
+            multaRepository.save(m);
+            return true;
+        }).orElse(false);
+    }
+
+    public boolean eliminar(Long id) {
+        if (id != null && multaRepository.existsById(id)) {
+            multaRepository.deleteById(id);
             return true;
         }
         return false;
     }
 
-    public boolean eliminar(Long id) {
-        if (id == null) return false;
-        return multas.remove(id) != null;
-    }
-
     public Multa guardar(Multa multa) {
-        if (multa.getId() == null || multa.getId() <= 0) {
-            multa.setId(idGenerator.incrementAndGet());
-        } else {
-            idGenerator.updateAndGet(current -> Math.max(current, multa.getId()));
-        }
-        multas.put(multa.getId(), multa);
-        return multa;
+        return multaRepository.save(multa);
     }
 }

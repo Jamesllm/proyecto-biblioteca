@@ -2,12 +2,14 @@ package com.proyecto.biblioteca.services;
 
 import com.proyecto.biblioteca.models.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class ReporteService {
 
     private final LibroService libroService;

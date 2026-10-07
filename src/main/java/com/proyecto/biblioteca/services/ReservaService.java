@@ -1,57 +1,53 @@
 package com.proyecto.biblioteca.services;
 
 import com.proyecto.biblioteca.models.Reserva;
+import com.proyecto.biblioteca.repositories.LibroRepository;
+import com.proyecto.biblioteca.repositories.ReservaRepository;
+import com.proyecto.biblioteca.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ReservaService {
-    private final ConcurrentHashMap<Long, Reserva> reservas = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(0);
 
-    private final LibroService libroService;
-    private final UsuarioService usuarioService;
+    private final ReservaRepository reservaRepository;
+    private final LibroRepository libroRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public ReservaService(LibroService libroService, UsuarioService usuarioService) {
-        this.libroService = libroService;
-        this.usuarioService = usuarioService;
-
-        // Reservas iniciales de prueba
-        guardar(new Reserva(null, "978-0307474728", 2L, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2), "PENDIENTE", null, null));
+    public ReservaService(ReservaRepository reservaRepository,
+                          LibroRepository libroRepository,
+                          UsuarioRepository usuarioRepository) {
+        this.reservaRepository = reservaRepository;
+        this.libroRepository = libroRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Reserva> listarTodas() {
-        return reservas.values().stream()
-                .map(this::enriquecerReserva)
-                .collect(Collectors.toList());
+        return reservaRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Reserva> buscarPorId(Long id) {
         if (id == null) return Optional.empty();
-        return Optional.ofNullable(reservas.get(id)).map(this::enriquecerReserva);
+        return reservaRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<Reserva> listarPorUsuario(Long idUsuario) {
-        if (idUsuario == null) return new ArrayList<>();
-        return reservas.values().stream()
-                .filter(r -> idUsuario.equals(r.getIdUsuario()))
-                .map(this::enriquecerReserva)
-                .collect(Collectors.toList());
+        if (idUsuario == null) return List.of();
+        return reservaRepository.findByIdUsuario(idUsuario);
     }
 
+    @Transactional(readOnly = true)
     public List<Reserva> listarPorIsbn(String isbn) {
-        if (isbn == null) return new ArrayList<>();
-        return reservas.values().stream()
-                .filter(r -> isbn.trim().equalsIgnoreCase(r.getIsbn()))
-                .map(this::enriquecerReserva)
-                .collect(Collectors.toList());
+        if (isbn == null) return List.of();
+        return reservaRepository.findByIsbn(isbn.trim());
     }
 
     public Reserva crearReserva(Reserva reserva) {
@@ -59,11 +55,13 @@ public class ReservaService {
             throw new IllegalArgumentException("El ISBN del libro y el ID del usuario son obligatorios.");
         }
 
-        usuarioService.buscarPorId(reserva.getIdUsuario())
-                .orElseThrow(() -> new IllegalArgumentException("El usuario con ID " + reserva.getIdUsuario() + " no existe."));
+        if (!usuarioRepository.existsById(reserva.getIdUsuario())) {
+            throw new IllegalArgumentException("El usuario con ID " + reserva.getIdUsuario() + " no existe.");
+        }
 
-        libroService.buscarPorIsbn(reserva.getIsbn())
-                .orElseThrow(() -> new IllegalArgumentException("El libro con ISBN " + reserva.getIsbn() + " no existe."));
+        if (!libroRepository.existsById(reserva.getIsbn().trim())) {
+            throw new IllegalArgumentException("El libro con ISBN " + reserva.getIsbn() + " no existe.");
+        }
 
         if (reserva.getFechaHoraReserva() == null) {
             reserva.setFechaHoraReserva(LocalDateTime.now());
@@ -73,50 +71,32 @@ public class ReservaService {
         }
         reserva.setEstado("PENDIENTE");
 
-        return enriquecerReserva(guardar(reserva));
+        return reservaRepository.save(reserva);
     }
 
     public boolean cancelarReserva(Long id) {
-        Reserva reserva = reservas.get(id);
-        if (reserva != null) {
-            reserva.setEstado("CANCELADA");
+        if (id == null) return false;
+        return reservaRepository.findById(id).map(r -> {
+            r.setEstado("CANCELADA");
+            reservaRepository.save(r);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public boolean atenderReserva(Long id) {
-        Reserva reserva = reservas.get(id);
-        if (reserva != null) {
-            reserva.setEstado("ATENDIDA");
+        if (id == null) return false;
+        return reservaRepository.findById(id).map(r -> {
+            r.setEstado("ATENDIDA");
+            reservaRepository.save(r);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public boolean eliminar(Long id) {
-        if (id == null) return false;
-        return reservas.remove(id) != null;
-    }
-
-    private Reserva guardar(Reserva reserva) {
-        if (reserva.getId() == null || reserva.getId() <= 0) {
-            reserva.setId(idGenerator.incrementAndGet());
-        } else {
-            idGenerator.updateAndGet(current -> Math.max(current, reserva.getId()));
+        if (id != null && reservaRepository.existsById(id)) {
+            reservaRepository.deleteById(id);
+            return true;
         }
-        reservas.put(reserva.getId(), reserva);
-        return reserva;
-    }
-
-    private Reserva enriquecerReserva(Reserva r) {
-        if (r == null) return null;
-        if (r.getIsbn() != null) {
-            libroService.buscarPorIsbn(r.getIsbn()).ifPresent(r::setLibro);
-        }
-        if (r.getIdUsuario() != null) {
-            usuarioService.buscarPorId(r.getIdUsuario()).ifPresent(r::setUsuario);
-        }
-        return r;
+        return false;
     }
 }

@@ -1,52 +1,52 @@
 package com.proyecto.biblioteca.services;
 
 import com.proyecto.biblioteca.models.Autor;
+import com.proyecto.biblioteca.repositories.AutorRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
+@Transactional
 public class AutorService {
-    private final ConcurrentHashMap<Long, Autor> autores = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(0);
 
-    public AutorService() {
-        // Datos iniciales de prueba (mínimo 5 registros)
-        guardar(new Autor(null, "Gabriel García Márquez", "Colombiana", "Premio Nobel de Literatura 1982, maestro del realismo mágico."));
-        guardar(new Autor(null, "Mario Vargas Llosa", "Peruana", "Premio Nobel de Literatura 2010, novelista y ensayista."));
-        guardar(new Autor(null, "Jorge Luis Borges", "Argentina", "Figura clave de la literatura en habla hispana y universal."));
-        guardar(new Autor(null, "Isabel Allende", "Chilena", "Destacada escritora latinoamericana, autora de 'La casa de los espíritus'."));
-        guardar(new Autor(null, "Julio Cortázar", "Argentina", "Maestro del relato corto, la prosa poética y la narración experimental, autor de 'Rayuela'."));
+    private final AutorRepository autorRepository;
+
+    public AutorService(AutorRepository autorRepository) {
+        this.autorRepository = autorRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Autor> listarTodos() {
-        return new ArrayList<>(autores.values());
+        return autorRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Autor> buscarPorId(Long id) {
-        return Optional.ofNullable(autores.get(id));
+        if (id == null) return Optional.empty();
+        return autorRepository.findById(id);
     }
 
     public Autor guardar(Autor autor) {
-        if (autor.getId() == null || autor.getId() <= 0) {
-            autor.setId(idGenerator.incrementAndGet());
-        } else {
-            idGenerator.updateAndGet(current -> Math.max(current, autor.getId()));
-        }
-        autores.put(autor.getId(), autor);
-        return autor;
+        return autorRepository.save(autor);
     }
 
     public Optional<Autor> actualizar(Long id, Autor autorActualizado) {
-        if (!autores.containsKey(id)) {
-            return Optional.empty();
+        return autorRepository.findById(id).map(existente -> {
+            existente.setNombre(autorActualizado.getNombre());
+            existente.setNacionalidad(autorActualizado.getNacionalidad());
+            existente.setBiografia(autorActualizado.getBiografia());
+            return autorRepository.save(existente);
+        });
+    }
+
+    public boolean eliminar(Long id) {
+        if (id != null && autorRepository.existsById(id)) {
+            autorRepository.deleteById(id);
+            return true;
         }
-        autorActualizado.setId(id);
-        autores.put(id, autorActualizado);
-        return Optional.of(autorActualizado);
+        return false;
     }
 }
