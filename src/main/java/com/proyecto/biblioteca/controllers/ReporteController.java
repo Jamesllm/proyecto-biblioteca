@@ -30,6 +30,11 @@ public class ReporteController {
 
     @GetMapping("/prestamos")
     public ResponseEntity<Map<String, Object>> obtenerReportePrestamos() {
-        return ResponseEntity.ok(reporteService.obtenerReportePrestamos());
+        return ResponseEntity.ok(reporteService.obtenerReportePrestamosPorEstado());
+    }
+
+    @GetMapping("/financiero-multas")
+    public ResponseEntity<Map<String, Object>> obtenerReporteFinancieroMultas() {
+        return ResponseEntity.ok(reporteService.obtenerReporteFinancieroMultas());
     }
 }

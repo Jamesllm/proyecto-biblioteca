@@ -1,6 +1,5 @@
 package com.proyecto.biblioteca.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
@@ -9,8 +8,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -20,15 +17,14 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("error", "Unauthorized");
-        body.put("mensaje", "Acceso denegado: Se requiere un Token JWT válido para acceder a este recurso.");
-        body.put("path", request.getServletPath());
+        String jsonResponse = String.format(
+                "{\"status\":401,\"error\":\"Unauthorized\",\"mensaje\":\"Acceso denegado: Se requiere un Token JWT valido para acceder a este recurso.\",\"path\":\"%s\"}",
+                request.getServletPath()
+        );
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getOutputStream(), body);
+        response.getWriter().write(jsonResponse);
     }
 }
