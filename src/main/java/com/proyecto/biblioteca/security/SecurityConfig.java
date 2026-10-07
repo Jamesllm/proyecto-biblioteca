@@ -6,7 +6,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -54,29 +58,38 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Rutas públicas de catálogo, login y home
+                // Rutas públicas de catálogo, login, register y bienvenida
                 .requestMatchers("/", "/api/auth/**", "/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/libros/**", "/api/ejemplares/**", "/api/autores/**", "/api/categorias/**", "/api/editoriales/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reportes/**").permitAll()
-                
-                // Rutas que requieren autenticación con token JWT
+
+                // Todas las demás rutas de creación, edición, préstamos, devoluciones y multas requieren JWT
                 .anyRequest().authenticated()
             );
 
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordPasswordAuthenticationFilter());
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    private Class<? extends jakarta.servlet.Filter> UsernamePasswordPasswordAuthenticationFilter() {
-        return UsernamePasswordAuthenticationFilter.class;
     }
 }
