@@ -143,7 +143,3 @@ spring.jpa.hibernate.ddl-auto=update
 El servicio quedara disponible en `http://localhost:8080`.
 
 ---
-
-## Suite de Pruebas Postman
-
-El repositorio incluye la coleccion `ProyectoBiblioteca.postman_collection.json`. Al ejecutar la peticion de login, el token emitido se almacena de forma automatica en la variable de entorno `token`, facilitando la ejecucion directa de los endpoints protegidos.
