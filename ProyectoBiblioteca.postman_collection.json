@@ -1,0 +1,608 @@
+{
+	"info": {
+		"_postman_id": "a5e8f49a-32c0-43b9-a9a7-96a938634125",
+		"name": "Proyecto Biblioteca API",
+		"description": "Colección completa de peticiones HTTP para el Sistema de Gestión de Biblioteca (Java 21 & Spring Boot). Incluye operaciones CRUD completas (GET, POST, PUT), validaciones con Bean Validation y módulo integral de reportes.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "0. Inicio y Estado",
+			"item": [
+				{
+					"name": "Información de la API",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": ["{{baseUrl}}"],
+							"path": [""]
+						},
+						"description": "Retorna información general del sistema y catálogo de endpoints disponibles."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1. Libros",
+			"item": [
+				{
+					"name": "Listar todos los libros",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/libros",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "libros"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener libro por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/libros/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "libros", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nuevo libro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Pedro Páramo\",\n    \"isbn\": \"978-8437604183\",\n    \"idAutor\": 3,\n    \"idCategoria\": 1,\n    \"idEditorial\": 2,\n    \"anioPublicacion\": 1955\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/libros",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "libros"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar libro (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Cien años de soledad (Edición Conmemorativa)\",\n    \"isbn\": \"978-0307474728\",\n    \"idAutor\": 1,\n    \"idCategoria\": 1,\n    \"idEditorial\": 1,\n    \"anioPublicacion\": 1967,\n    \"disponible\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/libros/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "libros", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Usuarios",
+			"item": [
+				{
+					"name": "Listar todos los usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usuarios"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usuarios", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registrar nuevo usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Ana Morales\",\n    \"email\": \"ana.morales@example.com\",\n    \"telefono\": \"+51 988776655\",\n    \"direccion\": \"Av. Javier Prado 450, Lima\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usuarios"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar usuario (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Carlos Mendoza Actualizado\",\n    \"email\": \"carlos.mendoza.nuevo@email.com\",\n    \"telefono\": \"+51 999888777\",\n    \"direccion\": \"Av. El Sol 500, Lima\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "usuarios", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Préstamos",
+			"item": [
+				{
+					"name": "Listar todos los préstamos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/prestamos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "prestamos"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener préstamo por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/prestamos/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "prestamos", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registrar nuevo préstamo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idLibro\": 1,\n    \"idUsuario\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/prestamos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "prestamos"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar préstamo / Devolución (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"estado\": \"DEVUELTO\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/prestamos/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "prestamos", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Autores",
+			"item": [
+				{
+					"name": "Listar todos los autores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/autores",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "autores"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener autor por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/autores/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "autores", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nuevo autor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Juan Rulfo\",\n    \"nacionalidad\": \"Mexicana\",\n    \"biografia\": \"Escritor, guionista y fotógrafo mexicano, maestro del realismo.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/autores",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "autores"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar autor (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Gabriel García Márquez (Actualizado)\",\n    \"nacionalidad\": \"Colombiana\",\n    \"biografia\": \"Premio Nobel de Literatura 1982, figura cumbre de las letras universales.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/autores/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "autores", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Categorías",
+			"item": [
+				{
+					"name": "Listar todas las categorías",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener categoría por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nueva categoría",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Arte y Arquitectura\",\n    \"descripcion\": \"Publicaciones sobre diseño, estética, historia del arte y arquitectura.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar categoría (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Novela, Ficción y Narrativa\",\n    \"descripcion\": \"Narrativa contemporánea, clásica y ficción universal.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categorias/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categorias", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Editoriales",
+			"item": [
+				{
+					"name": "Listar todas las editoriales",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/editoriales",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "editoriales"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener editorial por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/editoriales/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "editoriales", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nueva editorial",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Alianza Editorial\",\n    \"pais\": \"España\",\n    \"sitioWeb\": \"https://www.alianzaeditorial.es\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/editoriales",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "editoriales"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar editorial (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Editorial Sudamericana S.A.\",\n    \"pais\": \"Argentina\",\n    \"sitioWeb\": \"https://www.penguinlibros.com/ar\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/editoriales/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "editoriales", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. Multas",
+			"item": [
+				{
+					"name": "Listar todas las multas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/multas",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "multas"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener multa por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/multas/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "multas", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registrar nueva multa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idPrestamo\": 1,\n    \"idUsuario\": 1,\n    \"monto\": 25.50,\n    \"motivo\": \"Daño menor en la portada del libro\",\n    \"pagada\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/multas",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "multas"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar multa / Registrar Pago (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pagada\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/multas/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "multas", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8. Reportes y Estadísticas",
+			"item": [
+				{
+					"name": "Dashboard Ejecutivo General",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reportes/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reportes", "dashboard"]
+						},
+						"description": "Retorna métricas globales de catálogo, usuarios, estado de préstamos y balance económico de multas."
+					},
+					"response": []
+				},
+				{
+					"name": "Reporte de Libros por Categoría",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reportes/libros-por-categoria",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reportes", "libros-por-categoria"]
+						},
+						"description": "Distribución y conteo de libros disponibles en cada categoría temática."
+					},
+					"response": []
+				},
+				{
+					"name": "Reporte Detallado de Préstamos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/reportes/prestamos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "reportes", "prestamos"]
+						},
+						"description": "Lista consolidada de préstamos con títulos de libros y nombres de los lectores asociados."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
