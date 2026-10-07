@@ -3,6 +3,7 @@ package com.proyecto.biblioteca.config;
 import com.proyecto.biblioteca.models.*;
 import com.proyecto.biblioteca.repositories.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class DataInitializer implements CommandLineRunner {
     private final PrestamoRepository prestamoRepository;
     private final MultaRepository multaRepository;
     private final PagoMultaRepository pagoMultaRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(AutorRepository autorRepository,
                            CategoriaRepository categoriaRepository,
@@ -28,7 +30,8 @@ public class DataInitializer implements CommandLineRunner {
                            UsuarioRepository usuarioRepository,
                            PrestamoRepository prestamoRepository,
                            MultaRepository multaRepository,
-                           PagoMultaRepository pagoMultaRepository) {
+                           PagoMultaRepository pagoMultaRepository,
+                           PasswordEncoder passwordEncoder) {
         this.autorRepository = autorRepository;
         this.categoriaRepository = categoriaRepository;
         this.editorialRepository = editorialRepository;
@@ -38,11 +41,12 @@ public class DataInitializer implements CommandLineRunner {
         this.prestamoRepository = prestamoRepository;
         this.multaRepository = multaRepository;
         this.pagoMultaRepository = pagoMultaRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
-        // Precargar autores si la tabla está vacía
+        // 1. Precargar autores
         if (autorRepository.count() == 0) {
             autorRepository.save(new Autor(null, "Gabriel García Márquez", "Colombiana", "Premio Nobel de Literatura 1982. Máximo exponente del realismo mágico."));
             autorRepository.save(new Autor(null, "Mario Vargas Llosa", "Peruana", "Premio Nobel de Literatura 2010. Miembro de la Real Academia Española."));
@@ -51,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
             autorRepository.save(new Autor(null, "Julio Cortázar", "Argentina", "Maestro del relato corto y la novela experimental."));
         }
 
-        // Precargar categorías
+        // 2. Precargar categorías
         if (categoriaRepository.count() == 0) {
             categoriaRepository.save(new Categoria(null, "Realismo Mágico", "Obras que fusionan la realidad cotidiana con elementos fantásticos."));
             categoriaRepository.save(new Categoria(null, "Ficción Literaria", "Narrativa literaria de alta calidad estética y profundidad temática."));
@@ -60,7 +64,7 @@ public class DataInitializer implements CommandLineRunner {
             categoriaRepository.save(new Categoria(null, "Ingeniería y Tecnología", "Textos técnicos sobre desarrollo de software y ciencias computacionales."));
         }
 
-        // Precargar editoriales
+        // 3. Precargar editoriales
         if (editorialRepository.count() == 0) {
             editorialRepository.save(new Editorial(null, "Editorial Sudamericana", "Argentina", "contacto@sudamericana.com"));
             editorialRepository.save(new Editorial(null, "Alfaguara", "España", "info@alfaguara.com"));
@@ -69,7 +73,7 @@ public class DataInitializer implements CommandLineRunner {
             editorialRepository.save(new Editorial(null, "Prentice Hall", "Estados Unidos", "contact@prenticehall.com"));
         }
 
-        // Precargar libros por ISBN
+        // 4. Precargar libros por ISBN
         if (libroRepository.count() == 0) {
             libroRepository.save(new Libro("978-0307474728", "Cien años de soledad", "Obra cumbre del realismo mágico latinoamericano.", 1L, 1L, 1L, 1967));
             libroRepository.save(new Libro("978-8420471839", "La ciudad y los perros", "Novela ambientada en el Colegio Militar Leoncio Prado.", 2L, 1L, 2L, 1963));
@@ -79,7 +83,7 @@ public class DataInitializer implements CommandLineRunner {
             libroRepository.save(new Libro("978-8420471891", "Rayuela", "Novela revolucionaria de contranovela experimental.", 5L, 1L, 2L, 1963));
         }
 
-        // Precargar ejemplares físicos
+        // 5. Precargar ejemplares físicos
         if (ejemplarRepository.count() == 0) {
             ejemplarRepository.save(new Ejemplar(null, "978-0307474728", 1, "Estantería A-1, Nivel 1", "EXCELENTE", "PRESTADO"));
             ejemplarRepository.save(new Ejemplar(null, "978-0307474728", 2, "Estantería A-1, Nivel 1", "BUENO", "DISPONIBLE"));
@@ -91,33 +95,51 @@ public class DataInitializer implements CommandLineRunner {
             ejemplarRepository.save(new Ejemplar(null, "978-8420471891", 1, "Estantería C-2, Nivel 4", "BUENO", "DISPONIBLE"));
         }
 
-        // Precargar usuarios
+        // 6. Precargar usuarios con contraseñas encriptadas con BCrypt y roles
         if (usuarioRepository.count() == 0) {
-            usuarioRepository.save(new Usuario(null, "72849102", "Carlos Mendoza", "carlos.mendoza@email.com", "+51 987654321", "Av. Javier Prado 1234, Lima", "ESTUDIANTE", "ACTIVO"));
-            usuarioRepository.save(new Usuario(null, "45920183", "Lucía Fernández", "lucia.fernandez@email.com", "+51 912345678", "Calle Los Pinos 456, Arequipa", "DOCENTE", "ACTIVO"));
-            usuarioRepository.save(new Usuario(null, "71283940", "Mateo Romero", "mateo.romero@email.com", "+51 955443322", "Jr. Huancavelica 789, Trujillo", "ESTUDIANTE", "ACTIVO"));
-            usuarioRepository.save(new Usuario(null, "09283741", "Valeria Castillo", "valeria.castillo@email.com", "+51 977889900", "Av. España 321, Cusco", "DOCENTE", "ACTIVO"));
-            usuarioRepository.save(new Usuario(null, "78392019", "Diego Salazar", "diego.salazar@email.com", "+51 944556677", "Calle Tacna 654, Chiclayo", "ESTUDIANTE", "ACTIVO"));
+            // Usuario Administrador
+            usuarioRepository.save(new Usuario(null, "00000001", "Administrador del Sistema", "admin@biblioteca.com",
+                    passwordEncoder.encode("admin123"), "+51 900000000", "Sede Central", "DOCENTE", "ROLE_ADMIN", "ACTIVO"));
+
+            // Usuario Bibliotecario
+            usuarioRepository.save(new Usuario(null, "00000002", "Lic. Rosa Bibliotecaria", "bibliotecario@biblioteca.com",
+                    passwordEncoder.encode("biblio123"), "+51 900000001", "Sede Central", "DOCENTE", "ROLE_BIBLIOTECARIO", "ACTIVO"));
+
+            // Usuarios Lectores
+            usuarioRepository.save(new Usuario(null, "72849102", "Carlos Mendoza", "carlos.mendoza@email.com",
+                    passwordEncoder.encode("carlos123"), "+51 987654321", "Av. Javier Prado 1234, Lima", "ESTUDIANTE", "ROLE_ESTUDIANTE", "ACTIVO"));
+
+            usuarioRepository.save(new Usuario(null, "45920183", "Lucía Fernández", "lucia.fernandez@email.com",
+                    passwordEncoder.encode("lucia123"), "+51 912345678", "Calle Los Pinos 456, Arequipa", "DOCENTE", "ROLE_DOCENTE", "ACTIVO"));
+
+            usuarioRepository.save(new Usuario(null, "71283940", "Mateo Romero", "mateo.romero@email.com",
+                    passwordEncoder.encode("mateo123"), "+51 955443322", "Jr. Huancavelica 789, Trujillo", "ESTUDIANTE", "ROLE_ESTUDIANTE", "ACTIVO"));
+
+            usuarioRepository.save(new Usuario(null, "09283741", "Valeria Castillo", "valeria.castillo@email.com",
+                    passwordEncoder.encode("valeria123"), "+51 977889900", "Av. España 321, Cusco", "DOCENTE", "ROLE_DOCENTE", "ACTIVO"));
+
+            usuarioRepository.save(new Usuario(null, "78392019", "Diego Salazar", "diego.salazar@email.com",
+                    passwordEncoder.encode("diego123"), "+51 944556677", "Calle Tacna 654, Chiclayo", "ESTUDIANTE", "ROLE_ESTUDIANTE", "ACTIVO"));
         }
 
-        // Precargar préstamos con fechas exactas
+        // 7. Precargar préstamos
         if (prestamoRepository.count() == 0) {
             LocalDateTime ahora = LocalDateTime.now();
-            prestamoRepository.save(new Prestamo(null, 1L, 1L, ahora.minusDays(5), ahora.plusDays(9), null, "ACTIVO"));
-            prestamoRepository.save(new Prestamo(null, 3L, 2L, ahora.minusDays(10), ahora.plusDays(4), null, "ACTIVO"));
-            prestamoRepository.save(new Prestamo(null, 5L, 3L, ahora.minusDays(20), ahora.minusDays(6), ahora.minusDays(7), "DEVUELTO"));
-            prestamoRepository.save(new Prestamo(null, 6L, 4L, ahora.minusDays(18), ahora.minusDays(10), ahora.minusDays(5), "DEVUELTO"));
-            prestamoRepository.save(new Prestamo(null, 7L, 5L, ahora.minusDays(16), ahora.minusDays(2), null, "VENCIDO"));
+            prestamoRepository.save(new Prestamo(null, 1L, 3L, ahora.minusDays(5), ahora.plusDays(9), null, "ACTIVO"));
+            prestamoRepository.save(new Prestamo(null, 3L, 4L, ahora.minusDays(10), ahora.plusDays(4), null, "ACTIVO"));
+            prestamoRepository.save(new Prestamo(null, 5L, 5L, ahora.minusDays(20), ahora.minusDays(6), ahora.minusDays(7), "DEVUELTO"));
+            prestamoRepository.save(new Prestamo(null, 6L, 6L, ahora.minusDays(18), ahora.minusDays(10), ahora.minusDays(5), "DEVUELTO"));
+            prestamoRepository.save(new Prestamo(null, 7L, 7L, ahora.minusDays(16), ahora.minusDays(2), null, "VENCIDO"));
         }
 
-        // Precargar multas y pagos
+        // 8. Precargar multas y pagos
         if (multaRepository.count() == 0) {
             LocalDateTime ahora = LocalDateTime.now();
-            multaRepository.save(new Multa(null, 1L, 1L, "RETRASO", 72L, 3, 15.00, "Entrega con retraso de 3 días", ahora.minusDays(5), "PENDIENTE"));
-            multaRepository.save(new Multa(null, 2L, 2L, "DAÑO", 0L, 0, 25.50, "Daño menor en cubierta de libro", ahora.minusDays(3), "PENDIENTE"));
-            multaRepository.save(new Multa(null, 3L, 3L, "RETRASO", 48L, 2, 10.00, "Retraso de 2 días en devolución", ahora.minusDays(10), "PAGADA"));
-            multaRepository.save(new Multa(null, 4L, 4L, "EXTRAVIO", 0L, 0, 30.00, "Extravío temporal de material", ahora.minusDays(15), "PAGADA"));
-            multaRepository.save(new Multa(null, 5L, 5L, "RETRASO", 96L, 4, 20.00, "Retraso de 4 días en fecha límite", ahora.minusDays(2), "PENDIENTE"));
+            multaRepository.save(new Multa(null, 1L, 3L, "RETRASO", 72L, 3, 15.00, "Entrega con retraso de 3 días", ahora.minusDays(5), "PENDIENTE"));
+            multaRepository.save(new Multa(null, 2L, 4L, "DAÑO", 0L, 0, 25.50, "Daño menor en cubierta de libro", ahora.minusDays(3), "PENDIENTE"));
+            multaRepository.save(new Multa(null, 3L, 5L, "RETRASO", 48L, 2, 10.00, "Retraso de 2 días en devolución", ahora.minusDays(10), "PAGADA"));
+            multaRepository.save(new Multa(null, 4L, 6L, "EXTRAVIO", 0L, 0, 30.00, "Extravío temporal de material", ahora.minusDays(15), "PAGADA"));
+            multaRepository.save(new Multa(null, 5L, 7L, "RETRASO", 96L, 4, 20.00, "Retraso de 4 días en fecha límite", ahora.minusDays(2), "PENDIENTE"));
         }
 
         if (pagoMultaRepository.count() == 0) {

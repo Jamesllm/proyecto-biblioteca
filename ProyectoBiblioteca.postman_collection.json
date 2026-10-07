@@ -1,33 +1,105 @@
 {
 	"info": {
 		"_postman_id": "a5e8f49a-32c0-43b9-a9a7-96a938634125",
-		"name": "Proyecto Biblioteca API (Fase 1 - Integral)",
-		"description": "Colección completa de peticiones HTTP para el Sistema de Gestión de Biblioteca (Java 21 & Spring Boot). Incluye operaciones CRUD completas, gestión de ISBN, Ejemplares físicos, Préstamos con LocalDateTime, cálculo automático de mora en devoluciones, Pagos de Multas con comprobante, Reservas y consultas detalladas por usuario.",
+		"name": "Proyecto Biblioteca API (Fase 3 - JWT & PostgreSQL)",
+		"description": "Colección completa de peticiones HTTP para el Sistema de Gestión de Biblioteca (Java 21, Spring Boot, PostgreSQL, Spring Security & JWT).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "0. Inicio y Estado",
+			"name": "0. Autenticación & JWT",
 			"item": [
 				{
-					"name": "Información de la API",
+					"name": "Login Administrador",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set('token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@biblioteca.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": "{{baseUrl}}/api/auth/login"
+					}
+				},
+				{
+					"name": "Login Lector (Estudiante)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set('token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"carlos.mendoza@email.com\",\n  \"password\": \"carlos123\"\n}"
+						},
+						"url": "{{baseUrl}}/api/auth/login"
+					}
+				},
+				{
+					"name": "Registro de Nuevo Usuario",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dni\": \"87654321\",\n  \"nombre\": \"Alejandro Perez\",\n  \"email\": \"alejandro.perez@email.com\",\n  \"password\": \"secreto123\",\n  \"telefono\": \"+51 911223344\",\n  \"direccion\": \"Av. Universitaria 1500\",\n  \"tipoUsuario\": \"ESTUDIANTE\",\n  \"rol\": \"ROLE_ESTUDIANTE\"\n}"
+						},
+						"url": "{{baseUrl}}/api/auth/register"
+					}
+				},
+				{
+					"name": "Obtener Perfil Actual (Requiere Token)",
 					"request": {
 						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/",
-							"host": ["{{baseUrl}}"],
-							"path": [""]
-						}
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/auth/me"
 					}
 				}
 			]
 		},
 		{
-			"name": "1. Libros (Catálogo por ISBN)",
+			"name": "1. Inicio y Estado",
 			"item": [
 				{
-					"name": "Listar todos los libros",
+					"name": "Información de la API",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/"
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Libros (Catálogo por ISBN)",
+			"item": [
+				{
+					"name": "Listar todos los libros (Público)",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/libros"
@@ -48,47 +120,24 @@
 					}
 				},
 				{
-					"name": "Ver ejemplares disponibles de un ISBN",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/libros/978-0307474728/ejemplares/disponibles"
-					}
-				},
-				{
-					"name": "Crear nuevo libro",
+					"name": "Crear nuevo libro (Requiere Token)",
 					"request": {
 						"method": "POST",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"isbn\": \"978-8437604183\",\n  \"titulo\": \"Pedro Páramo\",\n  \"sinopsis\": \"Novela cumbre del realismo mágico mexicano\",\n  \"idAutor\": 3,\n  \"idCategoria\": 1,\n  \"idEditorial\": 2,\n  \"anioPublicacion\": 1955\n}"
 						},
 						"url": "{{baseUrl}}/api/libros"
 					}
-				},
-				{
-					"name": "Actualizar libro por ISBN",
-					"request": {
-						"method": "PUT",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"isbn\": \"978-0307474728\",\n  \"titulo\": \"Cien años de soledad (Edición Conmemorativa)\",\n  \"sinopsis\": \"Edición especial de la obra de García Márquez\",\n  \"idAutor\": 1,\n  \"idCategoria\": 1,\n  \"idEditorial\": 1,\n  \"anioPublicacion\": 1967\n}"
-						},
-						"url": "{{baseUrl}}/api/libros/978-0307474728"
-					}
-				},
-				{
-					"name": "Eliminar libro por ISBN",
-					"request": {
-						"method": "DELETE",
-						"url": "{{baseUrl}}/api/libros/978-8437604183"
-					}
 				}
 			]
 		},
 		{
-			"name": "2. Ejemplares (Copias Físicas)",
+			"name": "3. Ejemplares (Copias Físicas)",
 			"item": [
 				{
 					"name": "Listar todos los ejemplares",
@@ -98,134 +147,88 @@
 					}
 				},
 				{
-					"name": "Obtener ejemplar por ID",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/ejemplares/1"
-					}
-				},
-				{
-					"name": "Listar ejemplares por ISBN",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/ejemplares/libro/978-0307474728"
-					}
-				},
-				{
-					"name": "Crear nueva copia de libro (Ejemplar)",
+					"name": "Crear nueva copia de libro (Requiere Token)",
 					"request": {
 						"method": "POST",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"isbn\": \"978-0307474728\",\n  \"numeroCopia\": 3,\n  \"ubicacion\": \"Estantería A-1, Fila 3\",\n  \"estadoConservacion\": \"EXCELENTE\",\n  \"estado\": \"DISPONIBLE\"\n}"
 						},
 						"url": "{{baseUrl}}/api/ejemplares"
 					}
-				},
-				{
-					"name": "Actualizar estado o ubicación de ejemplar",
-					"request": {
-						"method": "PUT",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"isbn\": \"978-0307474728\",\n  \"numeroCopia\": 1,\n  \"ubicacion\": \"Estantería A-1, Fila 1 (Reubicado)\",\n  \"estadoConservacion\": \"BUENO\",\n  \"estado\": \"DISPONIBLE\"\n}"
-						},
-						"url": "{{baseUrl}}/api/ejemplares/1"
-					}
 				}
 			]
 		},
 		{
-			"name": "3. Usuarios & Consultas de Préstamos",
+			"name": "4. Usuarios & Consultas de Préstamos",
 			"item": [
 				{
-					"name": "Listar usuarios",
+					"name": "Listar usuarios (Requiere Token)",
 					"request": {
 						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
 						"url": "{{baseUrl}}/api/usuarios"
-					}
-				},
-				{
-					"name": "Obtener usuario por ID",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/usuarios/1"
 					}
 				},
 				{
 					"name": "Consultar historial detallado de préstamos del usuario",
 					"request": {
 						"method": "GET",
-						"url": "{{baseUrl}}/api/usuarios/1/prestamos"
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/usuarios/3/prestamos"
 					}
 				},
 				{
 					"name": "Consultar libros prestados activos del usuario",
 					"request": {
 						"method": "GET",
-						"url": "{{baseUrl}}/api/usuarios/1/prestamos/activos"
-					}
-				},
-				{
-					"name": "Consultar multas del usuario",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/usuarios/1/multas"
-					}
-				},
-				{
-					"name": "Crear usuario",
-					"request": {
-						"method": "POST",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"dni\": \"72849102\",\n  \"nombre\": \"Mariana Rios\",\n  \"email\": \"mariana.rios@email.com\",\n  \"telefono\": \"+51 933221100\",\n  \"direccion\": \"Av. Las Begonias 320\",\n  \"tipoUsuario\": \"ESTUDIANTE\",\n  \"estado\": \"ACTIVO\"\n}"
-						},
-						"url": "{{baseUrl}}/api/usuarios"
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+						"url": "{{baseUrl}}/api/usuarios/3/prestamos/activos"
 					}
 				}
 			]
 		},
 		{
-			"name": "4. Préstamos y Devoluciones",
+			"name": "5. Préstamos y Devoluciones",
 			"item": [
 				{
 					"name": "Listar todos los préstamos",
 					"request": {
 						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
 						"url": "{{baseUrl}}/api/prestamos"
-					}
-				},
-				{
-					"name": "Obtener detalle completo de un préstamo",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/prestamos/1/detalle"
 					}
 				},
 				{
 					"name": "Registrar nuevo préstamo",
 					"request": {
 						"method": "POST",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idEjemplar\": 2,\n  \"idUsuario\": 1\n}"
+							"raw": "{\n  \"idEjemplar\": 2,\n  \"idUsuario\": 3\n}"
 						},
 						"url": "{{baseUrl}}/api/prestamos"
 					}
 				},
 				{
-					"name": "Registrar Devolución (Calcula mora de días/horas automáticamente)",
+					"name": "Registrar Devolución (Calcula mora automáticamente)",
 					"request": {
 						"method": "PUT",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"fechaHoraDevolucionReal\": \"2026-10-25T11:30:00\",\n  \"estadoConservacion\": \"BUENO\",\n  \"observaciones\": \"Devuelto en buenas condiciones con ligero retraso\",\n  \"montoDanoExtra\": 0.0\n}"
+							"raw": "{\n  \"fechaHoraDevolucionReal\": \"2026-10-25T11:30:00\",\n  \"estadoConservacion\": \"BUENO\",\n  \"observaciones\": \"Devuelto con retraso\"\n}"
 						},
 						"url": "{{baseUrl}}/api/prestamos/1/devolver"
 					}
@@ -233,96 +236,54 @@
 			]
 		},
 		{
-			"name": "5. Multas y Pagos",
+			"name": "6. Multas y Pagos",
 			"item": [
 				{
 					"name": "Listar todas las multas",
 					"request": {
 						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
 						"url": "{{baseUrl}}/api/multas"
-					}
-				},
-				{
-					"name": "Listar multas pendientes de un usuario",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/multas/usuario/1/pendientes"
 					}
 				},
 				{
 					"name": "Pagar Multa (Emite comprobante y desbloquea usuario)",
 					"request": {
 						"method": "POST",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Authorization", "value": "Bearer {{token}}"}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"montoPagado\": 15.00,\n  \"metodoPago\": \"EFECTIVO\",\n  \"comprobante\": \"REC-000501\"\n}"
 						},
 						"url": "{{baseUrl}}/api/multas/1/pagar"
 					}
-				},
-				{
-					"name": "Historial de pagos de multas",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/pagos-multas"
-					}
 				}
 			]
 		},
 		{
-			"name": "6. Reservas de Libros",
+			"name": "7. Reservas",
 			"item": [
 				{
 					"name": "Listar reservas activas",
 					"request": {
 						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
 						"url": "{{baseUrl}}/api/reservas"
-					}
-				},
-				{
-					"name": "Crear reserva para libro agotado",
-					"request": {
-						"method": "POST",
-						"header": [{"key": "Content-Type", "value": "application/json"}],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"isbn\": \"978-0307474728\",\n  \"idUsuario\": 3\n}"
-						},
-						"url": "{{baseUrl}}/api/reservas"
-					}
-				},
-				{
-					"name": "Cancelar reserva",
-					"request": {
-						"method": "PUT",
-						"url": "{{baseUrl}}/api/reservas/1/cancelar"
 					}
 				}
 			]
 		},
 		{
-			"name": "7. Reportes y Dashboard",
+			"name": "8. Reportes & Dashboard",
 			"item": [
 				{
 					"name": "Dashboard general",
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/reportes/dashboard"
-					}
-				},
-				{
-					"name": "Reporte de préstamos por estado",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/reportes/prestamos"
-					}
-				},
-				{
-					"name": "Reporte financiero de multas",
-					"request": {
-						"method": "GET",
-						"url": "{{baseUrl}}/api/reportes/financiero-multas"
 					}
 				}
 			]
@@ -332,6 +293,10 @@
 		{
 			"key": "baseUrl",
 			"value": "http://localhost:8080"
+		},
+		{
+			"key": "token",
+			"value": ""
 		}
 	]
 }
