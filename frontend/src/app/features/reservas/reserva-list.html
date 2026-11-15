@@ -1,0 +1,54 @@
+<app-page-header [titulo]="modo() === 'todas' ? 'Reservas' : 'Mis reservas'">
+  @if (modo() === 'mias') {
+    <a class="btn btn--primario" routerLink="/libros">Reservar desde el catálogo</a>
+  }
+</app-page-header>
+
+<app-data-state
+  [cargando]="reservas.cargando()"
+  [error]="reservas.error()"
+  [vacio]="reservas.datos().length === 0"
+  mensajeVacio="No hay reservas para mostrar."
+  (reintentar)="reservas.cargar()"
+>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Libro</th>
+          @if (modo() === 'todas') {
+            <th>Lector</th>
+          }
+          <th>Reservado para</th>
+          <th>Vence el</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (reserva of reservas.datos(); track reserva.id) {
+          <tr>
+            <td>{{ reserva.libro?.titulo ?? reserva.isbn }}</td>
+            @if (modo() === 'todas') {
+              <td>{{ reserva.usuario?.nombre }}</td>
+            }
+            <td>{{ reserva.fechaHoraReserva | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ reserva.fechaHoraExpiracion | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td><app-estado-badge [estado]="reserva.estado" /></td>
+            <td>
+              <div class="acciones">
+                <a class="btn btn--chico" [routerLink]="['/reservas', reserva.id]">Detalle</a>
+                @if (reserva.estado === 'PENDIENTE') {
+                  @if (auth.esPersonal()) {
+                    <button type="button" class="btn btn--chico btn--primario" (click)="atender(reserva)">Atender</button>
+                  }
+                  <button type="button" class="btn btn--chico btn--peligro" (click)="cancelar(reserva)">Cancelar</button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-data-state>

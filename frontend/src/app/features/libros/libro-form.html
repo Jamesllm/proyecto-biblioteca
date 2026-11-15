@@ -1,0 +1,76 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+  <h1>{{ isbn() ? 'Editar libro' : 'Nuevo libro' }}</h1>
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>ISBN</span>
+      <input type="text" formControlName="isbn" placeholder="978-0307474728" />
+      <app-field-error
+        [control]="form.controls.isbn"
+        etiqueta="El ISBN"
+        mensajeFormato="Usa solo dígitos y guiones. Debe tener entre 9 y 20 caracteres."
+      />
+    </label>
+    <label class="campo">
+      <span>Año de publicación</span>
+      <input type="number" formControlName="anioPublicacion" />
+      <app-field-error [control]="form.controls.anioPublicacion" etiqueta="El año" />
+    </label>
+  </div>
+
+  <label class="campo">
+    <span>Título</span>
+    <input type="text" formControlName="titulo" />
+    <app-field-error [control]="form.controls.titulo" etiqueta="El título" />
+  </label>
+
+  <label class="campo">
+    <span>Autor</span>
+    <select formControlName="idAutor">
+      <option [ngValue]="null">Selecciona un autor</option>
+      @for (autor of autores(); track autor.id) {
+        <option [ngValue]="autor.id">{{ autor.nombre }}</option>
+      }
+    </select>
+    <app-field-error [control]="form.controls.idAutor" etiqueta="El autor" />
+  </label>
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>Categoría</span>
+      <select formControlName="idCategoria">
+        <option [ngValue]="null">Selecciona una categoría</option>
+        @for (categoria of categorias(); track categoria.id) {
+          <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+        }
+      </select>
+      <app-field-error [control]="form.controls.idCategoria" etiqueta="La categoría" />
+    </label>
+    <label class="campo">
+      <span>Editorial</span>
+      <select formControlName="idEditorial">
+        <option [ngValue]="null">Selecciona una editorial</option>
+        @for (editorial of editoriales(); track editorial.id) {
+          <option [ngValue]="editorial.id">{{ editorial.nombre }}</option>
+        }
+      </select>
+      <app-field-error [control]="form.controls.idEditorial" etiqueta="La editorial" />
+    </label>
+  </div>
+
+  <label class="campo">
+    <span>Sinopsis (opcional)</span>
+    <textarea formControlName="sinopsis"></textarea>
+  </label>
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+      {{ enviando() ? 'Guardando...' : 'Guardar' }}
+    </button>
+    <a class="btn" routerLink="/libros">Cancelar</a>
+  </div>
+</form>

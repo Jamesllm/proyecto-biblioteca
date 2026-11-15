@@ -1,0 +1,95 @@
+<app-data-state [cargando]="detalle.cargando()" [error]="detalle.error()" (reintentar)="detalle.cargar()">
+  @if (detalle.datos().libro; as libro) {
+    <app-page-header [titulo]="libro.titulo" [subtitulo]="libro.autor?.nombre ?? ''">
+      <a class="btn" routerLink="/libros">Volver</a>
+      @if (auth.esPersonal()) {
+        <a class="btn" [routerLink]="['/libros', libro.isbn, 'editar']">Editar</a>
+      }
+      @if (auth.esLector()) {
+        <a class="btn btn--primario" [routerLink]="['/libros', libro.isbn, 'reservar']">Reservar título</a>
+      }
+    </app-page-header>
+
+    <section class="ficha">
+      <dl>
+        <dt>ISBN</dt>
+        <dd class="dato">{{ libro.isbn }}</dd>
+        <dt>Categoría</dt>
+        <dd>{{ libro.categoria?.nombre }}</dd>
+        <dt>Editorial</dt>
+        <dd>{{ libro.editorial?.nombre }}</dd>
+        <dt>Año</dt>
+        <dd>{{ libro.anioPublicacion }}</dd>
+        <dt>Sinopsis</dt>
+        <dd>{{ libro.sinopsis || '—' }}</dd>
+      </dl>
+    </section>
+
+    <section class="seccion">
+      <app-page-header titulo="Ejemplares">
+        @if (auth.esPersonal()) {
+          <a class="btn btn--primario" [routerLink]="['/libros', libro.isbn, 'ejemplares', 'nuevo']">Nuevo ejemplar</a>
+        }
+      </app-page-header>
+
+      @if (!auth.autenticado() && hayDisponibles()) {
+        <p class="alerta alerta--aviso">
+          <a routerLink="/login">Inicia sesión</a> para solicitar un préstamo o reservar este título.
+        </p>
+      }
+
+      @if (detalle.datos().ejemplares.length === 0) {
+        <p class="mensaje-estado">Esta obra todavía no tiene ejemplares registrados.</p>
+      } @else {
+        <div class="tabla-contenedor">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Copia</th>
+                <th>Ubicación</th>
+                <th>Conservación</th>
+                <th>Estado</th>
+                @if (auth.esLector() || auth.esPersonal()) {
+                  <th>Acciones</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (ejemplar of detalle.datos().ejemplares; track ejemplar.id) {
+                <tr>
+                  <td>N.° {{ ejemplar.numeroCopia }}</td>
+                  <td>{{ ejemplar.ubicacion || '—' }}</td>
+                  <td>{{ ejemplar.estadoConservacion }}</td>
+                  <td><app-estado-badge [estado]="ejemplar.estado" /></td>
+                  @if (auth.esLector() || auth.esPersonal()) {
+                    <td>
+                      <div class="acciones">
+                        @if (auth.esLector() && ejemplar.estado === 'DISPONIBLE') {
+                          <button type="button" class="btn btn--chico btn--primario" (click)="solicitar(ejemplar)">
+                            Solicitar préstamo
+                          </button>
+                        }
+                        @if (auth.esPersonal()) {
+                          <a class="btn btn--chico" [routerLink]="['/ejemplares', ejemplar.id, 'editar']">Editar</a>
+                          @if (ejemplar.estado !== 'PRESTADO') {
+                            <button
+                              type="button"
+                              class="btn btn--chico btn--peligro"
+                              (click)="eliminarEjemplar(ejemplar)"
+                            >
+                              Eliminar
+                            </button>
+                          }
+                        }
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</app-data-state>

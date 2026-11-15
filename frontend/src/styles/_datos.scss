@@ -1,0 +1,179 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.tabla-contenedor {
+  @include tarjeta;
+  overflow-x: auto;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+
+  th,
+  td {
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid $color-borde;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    @include rotulo;
+    color: $color-tinta-suave;
+    white-space: nowrap;
+  }
+
+  tbody tr:hover {
+    background: rgba($color-primario, 0.04);
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .numero {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+.grid-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: $espacio-m;
+}
+
+.tarjeta {
+  @include tarjeta;
+  display: flex;
+  flex-direction: column;
+  gap: $espacio-s;
+  padding: $espacio-m;
+
+  h2 {
+    font-size: 1.15rem;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .acciones {
+    margin-top: auto;
+    padding-top: $espacio-s;
+  }
+
+  // Toda la tarjeta navega: el enlace del título se extiende sobre ella.
+  // Las acciones quedan por encima para seguir siendo clicables.
+  &--clicable {
+    position: relative;
+    transition: border-color 0.12s ease;
+
+    &:hover {
+      border-color: $color-primario;
+    }
+
+    .acciones {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  &__enlace {
+    color: inherit;
+    text-decoration: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: $radio;
+    }
+
+    &:focus-visible {
+      outline: none;
+
+      &::after {
+        @include foco;
+      }
+    }
+  }
+
+  // Ficha de catálogo: el ISBN encabeza la tarjeta sobre una línea impresa.
+  &__ficha {
+    @include dato;
+    padding-bottom: $espacio-s;
+    border-bottom: 2px solid $color-acento;
+    color: $color-tinta-suave;
+  }
+}
+
+.ficha {
+  @include tarjeta;
+  padding: $espacio-l;
+
+  dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: $espacio-s $espacio-l;
+    margin: 0;
+
+    @include movil {
+      grid-template-columns: 1fr;
+      gap: $espacio-xs;
+    }
+  }
+
+  dt {
+    color: $color-tinta-suave;
+    font-size: $texto-s;
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    max-width: 65ch;
+  }
+}
+
+// Los estados se muestran como sellos de biblioteca.
+.badge {
+  display: inline-block;
+  padding: 0.08rem 0.45rem;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  background: $color-neutro-fondo;
+  color: $color-tinta-suave;
+  font-family: $fuente-datos;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &--exito {
+    background: $color-exito-fondo;
+    color: $color-exito;
+  }
+
+  &--peligro {
+    background: $color-peligro-fondo;
+    color: $color-peligro;
+  }
+
+  &--aviso {
+    background: $color-aviso-fondo;
+    color: $color-aviso;
+  }
+}
+
+.mensaje-estado {
+  @include tarjeta;
+  margin: 0;
+  padding: $espacio-xl $espacio-m;
+  color: $color-tinta-suave;
+  text-align: center;
+}

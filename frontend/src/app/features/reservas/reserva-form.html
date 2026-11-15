@@ -1,0 +1,28 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="reservar()" novalidate>
+  <h1>Reservar título</h1>
+
+  @if (libro(); as actual) {
+    <p>
+      <strong>{{ actual.titulo }}</strong>
+      <span class="texto-suave"> · {{ actual.autor?.nombre }}</span>
+    </p>
+  }
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <label class="campo">
+    <span>Fecha y hora de la reserva</span>
+    <input type="datetime-local" formControlName="fechaHoraReserva" [min]="fechaMinima" />
+    <app-field-error [control]="form.controls.fechaHoraReserva" etiqueta="La fecha y hora" />
+    <small class="ayuda-campo">La reserva vence 3 días después de la fecha que elijas.</small>
+  </label>
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+      {{ enviando() ? 'Reservando...' : 'Confirmar reserva' }}
+    </button>
+    <a class="btn" [routerLink]="['/libros', isbn()]">Cancelar</a>
+  </div>
+</form>

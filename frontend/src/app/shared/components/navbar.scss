@@ -1,0 +1,193 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+$texto-lateral: #c9d4e8;
+
+// Botón con borde claro para fondos azul marino.
+@mixin boton-oscuro {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    border-color: #fff;
+    background: $color-marino-claro;
+  }
+}
+
+.lateral {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $color-marino;
+  color: #fff;
+
+  @include movil {
+    position: static;
+    height: auto;
+  }
+
+  &__cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $espacio-l $espacio-l $espacio-m;
+
+    @include movil {
+      padding: 0.8rem $espacio-m;
+    }
+  }
+
+  &__cuerpo {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $espacio-l;
+    min-height: 0;
+    overflow-y: auto;
+
+    @include movil {
+      display: none;
+
+      &--abierto {
+        display: flex;
+      }
+    }
+  }
+}
+
+.marca {
+  color: #fff;
+  font-family: $fuente-titulos;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.hamburguesa {
+  display: none;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+
+  @include movil {
+    display: block;
+  }
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: $espacio-m;
+  padding: 0 $espacio-m;
+
+  &__grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__titulo {
+    @include rotulo;
+    margin: 0 0 $espacio-xs;
+    padding: 0 $espacio-s;
+    color: $color-acento;
+  }
+
+  a {
+    padding: 0.4rem $espacio-s;
+    border-radius: $radio;
+    color: $texto-lateral;
+    font-size: 0.94rem;
+    text-decoration: none;
+
+    &:hover {
+      background: $color-marino-claro;
+      color: #fff;
+    }
+
+    &.activo {
+      background: $color-acento;
+      color: $color-marino;
+      font-weight: 600;
+    }
+
+    &:focus-visible {
+      outline-color: #fff;
+    }
+  }
+}
+
+.sesion {
+  display: flex;
+  flex-direction: column;
+  gap: $espacio-s;
+  padding: $espacio-m;
+  border-top: 1px solid $color-marino-claro;
+
+  &__usuario {
+    color: #fff;
+    font-size: $texto-s;
+    line-height: 1.3;
+    text-decoration: none;
+
+    strong,
+    small {
+      display: block;
+    }
+
+    small {
+      color: $texto-lateral;
+    }
+  }
+
+  .btn {
+    @include boton-oscuro;
+    text-align: center;
+  }
+}
+
+.superior {
+  background: $color-marino;
+
+  &__interior {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $espacio-s $espacio-m;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0.8rem $espacio-xl;
+
+    @include movil {
+      padding: 0.8rem $espacio-m;
+    }
+  }
+
+  &__acciones {
+    display: flex;
+    gap: $espacio-s;
+  }
+
+  .btn {
+    @include boton-oscuro;
+  }
+
+  .superior__principal {
+    border-color: $color-acento;
+    background: $color-acento;
+    color: $color-marino;
+
+    &:hover:not(:disabled) {
+      border-color: #fff;
+      background: #fff;
+    }
+  }
+}

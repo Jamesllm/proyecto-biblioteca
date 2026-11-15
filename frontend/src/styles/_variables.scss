@@ -1,0 +1,45 @@
+// Concepto: sala de catálogo. Azul de encuadernación, ocre de lomo y datos
+// en monoespaciada, como las fichas y los sellos de una biblioteca.
+
+// Paleta
+$color-fondo: #eef1f6;
+$color-superficie: #ffffff;
+$color-tinta: #141d33;
+$color-tinta-suave: #56617a;
+$color-borde: #d5dbe7;
+$color-marino: #10233f;
+$color-marino-claro: #1b3459;
+$color-primario: #1f4fa3;
+$color-primario-oscuro: #173b7a;
+$color-acento: #f4b62d;
+$color-exito: #12704f;
+$color-exito-fondo: #dcf3ea;
+$color-peligro: #b4232f;
+$color-peligro-fondo: #fde7e8;
+$color-aviso: #8a5a00;
+$color-aviso-fondo: #fdf0cf;
+$color-neutro-fondo: #e4e9f1;
+
+// Tipografía
+$fuente-base: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+$fuente-titulos: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+$fuente-datos: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+
+// Escala tipográfica
+$texto-xs: 0.75rem;
+$texto-s: 0.875rem;
+$texto-m: 1rem;
+$texto-l: 1.25rem;
+$texto-xl: 2rem;
+
+// Espaciado y forma
+$espacio-xs: 0.25rem;
+$espacio-s: 0.5rem;
+$espacio-m: 1rem;
+$espacio-l: 1.5rem;
+$espacio-xl: 2.5rem;
+$radio: 6px;
+$ancho-lateral: 248px;
+
+// Puntos de quiebre
+$movil: 820px;

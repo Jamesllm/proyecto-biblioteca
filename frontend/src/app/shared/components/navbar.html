@@ -1,0 +1,47 @@
+@if (auth.sesion(); as sesion) {
+  <aside class="lateral">
+    <div class="lateral__cabecera">
+      <a class="marca" routerLink="/libros" (click)="cerrarMenu()">Biblioteca</a>
+      <button
+        type="button"
+        class="hamburguesa"
+        aria-label="Abrir menú"
+        [attr.aria-expanded]="menuAbierto()"
+        (click)="alternarMenu()"
+      >
+        ☰
+      </button>
+    </div>
+
+    <div class="lateral__cuerpo" [class.lateral__cuerpo--abierto]="menuAbierto()">
+      <nav class="menu" aria-label="Principal">
+        @for (grupo of grupos(); track grupo.titulo) {
+          <div class="menu__grupo">
+            <p class="menu__titulo">{{ grupo.titulo }}</p>
+            @for (enlace of grupo.enlaces; track enlace.ruta) {
+              <a [routerLink]="enlace.ruta" routerLinkActive="activo" (click)="cerrarMenu()">{{ enlace.texto }}</a>
+            }
+          </div>
+        }
+      </nav>
+
+      <div class="sesion">
+        <a class="sesion__usuario" routerLink="/perfil" (click)="cerrarMenu()">
+          <strong>{{ sesion.nombre }}</strong>
+          <small>{{ etiquetaRol() }}</small>
+        </a>
+        <button type="button" class="btn btn--chico" (click)="salir()">Cerrar sesión</button>
+      </div>
+    </div>
+  </aside>
+} @else {
+  <header class="superior">
+    <div class="superior__interior">
+      <a class="marca" routerLink="/libros">Biblioteca</a>
+      <div class="superior__acciones">
+        <a class="btn btn--chico superior__principal" routerLink="/login">Iniciar sesión</a>
+        <a class="btn btn--chico" routerLink="/registro">Crear cuenta</a>
+      </div>
+    </div>
+  </header>
+}

@@ -1,0 +1,47 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="pagar()" novalidate>
+  <h1>Pago de multa</h1>
+
+  @if (multa(); as actual) {
+    <p>
+      <strong>{{ actual.monto | soles }}</strong>
+      <span class="texto-suave"> · {{ actual.tipoMulta }} · {{ actual.motivo }}</span>
+    </p>
+    @if (actual.estado !== 'PENDIENTE') {
+      <p class="alerta alerta--aviso">Esta multa no está pendiente de pago ({{ actual.estado }}).</p>
+    }
+  }
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>Monto a pagar (S/)</span>
+      <input type="number" formControlName="montoPagado" step="0.01" />
+      <app-field-error [control]="form.controls.montoPagado" etiqueta="El monto" />
+    </label>
+    <label class="campo">
+      <span>Método de pago</span>
+      <select formControlName="metodoPago">
+        @for (metodo of metodos; track metodo) {
+          <option [value]="metodo">{{ metodo.replace('_', '/') }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <label class="campo">
+    <span>N.° de comprobante (opcional)</span>
+    <input type="text" formControlName="comprobante" />
+    <app-field-error [control]="form.controls.comprobante" />
+    <small class="ayuda-campo">Si lo dejas vacío, el sistema generará uno automáticamente.</small>
+  </label>
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando() || multa()?.estado !== 'PENDIENTE'">
+      {{ enviando() ? 'Procesando...' : 'Registrar pago' }}
+    </button>
+    <a class="btn" [routerLink]="rutaRegreso()">Cancelar</a>
+  </div>
+</form>

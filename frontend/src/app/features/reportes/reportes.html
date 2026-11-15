@@ -1,0 +1,72 @@
+<app-data-state [cargando]="reportes.cargando()" [error]="reportes.error()" (reintentar)="reportes.cargar()">
+  @if (reportes.datos(); as datos) {
+    <app-page-header titulo="Reportes" [subtitulo]="'Fecha del reporte: ' + datos.dashboard.fechaReporte" />
+
+    <div class="grid-tarjetas">
+      <section class="tarjeta">
+        <h2>Catálogo</h2>
+        <table class="tabla">
+          <tbody>
+            <tr><td>Títulos</td><td class="numero">{{ datos.dashboard.catalogo.totalTitulosIsbn }}</td></tr>
+            <tr><td>Ejemplares</td><td class="numero">{{ datos.dashboard.catalogo.totalEjemplaresFisicos }}</td></tr>
+            <tr><td>Disponibles</td><td class="numero">{{ datos.dashboard.catalogo.ejemplaresDisponibles }}</td></tr>
+            <tr><td>Prestados</td><td class="numero">{{ datos.dashboard.catalogo.ejemplaresPrestados }}</td></tr>
+            <tr><td>En mantenimiento</td><td class="numero">{{ datos.dashboard.catalogo.ejemplaresEnMantenimiento }}</td></tr>
+            <tr><td>Autores</td><td class="numero">{{ datos.dashboard.catalogo.totalAutores }}</td></tr>
+            <tr><td>Categorías</td><td class="numero">{{ datos.dashboard.catalogo.totalCategorias }}</td></tr>
+            <tr><td>Editoriales</td><td class="numero">{{ datos.dashboard.catalogo.totalEditoriales }}</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Usuarios</h2>
+        <table class="tabla">
+          <tbody>
+            <tr><td>Registrados</td><td class="numero">{{ datos.dashboard.usuarios.totalRegistrados }}</td></tr>
+            <tr><td>Activos</td><td class="numero">{{ datos.dashboard.usuarios.activos }}</td></tr>
+            <tr><td>Sancionados</td><td class="numero">{{ datos.dashboard.usuarios.sancionados }}</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="tarjeta">
+        <h2>{{ datos.prestamos.tipoReporte }}</h2>
+        <table class="tabla">
+          <tbody>
+            @for (fila of datos.prestamos.datos | keyvalue: sinOrdenar; track fila.key) {
+              <tr><td>{{ fila.key }}</td><td class="numero">{{ fila.value }}</td></tr>
+            }
+            <tr><td><strong>Total</strong></td><td class="numero"><strong>{{ datos.prestamos.total }}</strong></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="tarjeta">
+        <h2>{{ datos.categorias.tipoReporte }}</h2>
+        <table class="tabla">
+          <tbody>
+            @for (fila of datos.categorias.datos | keyvalue: sinOrdenar; track fila.key) {
+              <tr><td>{{ fila.key }}</td><td class="numero">{{ fila.value }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </section>
+
+      <section class="tarjeta">
+        <h2>{{ datos.financiero.tipoReporte }}</h2>
+        <table class="tabla">
+          <tbody>
+            <tr><td>Multas emitidas</td><td class="numero">{{ datos.financiero.totalMultas }}</td></tr>
+            <tr><td>Multas pagadas</td><td class="numero">{{ datos.dashboard.multas.pagadas }}</td></tr>
+            <tr><td>Multas pendientes</td><td class="numero">{{ datos.dashboard.multas.pendientes }}</td></tr>
+            <tr><td>Pagos procesados</td><td class="numero">{{ datos.dashboard.multas.totalPagosProcesados }}</td></tr>
+            <tr><td>Monto total</td><td class="numero">{{ datos.financiero.montoTotal | soles }}</td></tr>
+            <tr><td>Recaudado</td><td class="numero">{{ datos.financiero.recaudado | soles }}</td></tr>
+            <tr><td>Pendiente</td><td class="numero">{{ datos.financiero.pendiente | soles }}</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  }
+</app-data-state>

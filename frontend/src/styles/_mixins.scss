@@ -1,0 +1,33 @@
+@use 'variables' as *;
+
+@mixin movil {
+  @media (max-width: $movil) {
+    @content;
+  }
+}
+
+@mixin tarjeta {
+  background: $color-superficie;
+  border: 1px solid $color-borde;
+  border-radius: $radio;
+}
+
+@mixin foco {
+  outline: 2px solid $color-primario;
+  outline-offset: 2px;
+}
+
+// Etiquetas pequeñas: encabezados de tabla, rótulos y grupos del menú.
+@mixin rotulo {
+  font-size: $texto-xs;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+// Datos de biblioteca: ISBN, números de copia y comprobantes.
+@mixin dato {
+  font-family: $fuente-datos;
+  font-size: 0.82em;
+  font-variant-numeric: tabular-nums;
+}

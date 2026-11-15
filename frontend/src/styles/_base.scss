@@ -1,0 +1,70 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: $color-fondo;
+  color: $color-tinta;
+  font-family: $fuente-base;
+  font-size: $texto-m;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: $fuente-titulos;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+a {
+  color: $color-primario;
+}
+
+:focus-visible {
+  @include foco;
+}
+
+.contenedor {
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: $espacio-xl;
+
+  @include movil {
+    padding: $espacio-l $espacio-m $espacio-xl;
+  }
+}
+
+.texto-suave {
+  color: $color-tinta-suave;
+}
+
+.dato {
+  @include dato;
+}
+
+.seccion {
+  margin-top: $espacio-xl;
+
+  h2 {
+    margin-bottom: $espacio-m;
+    font-size: $texto-l;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

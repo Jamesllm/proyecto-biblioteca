@@ -1,0 +1,28 @@
+<form class="formulario formulario--angosto" [formGroup]="form" (ngSubmit)="ingresar()" novalidate>
+  <h1>Iniciar sesión</h1>
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <label class="campo">
+    <span>Correo electrónico</span>
+    <input type="email" formControlName="email" autocomplete="username" />
+    <app-field-error [control]="form.controls.email" etiqueta="El correo" />
+  </label>
+
+  <label class="campo">
+    <span>Contraseña</span>
+    <input type="password" formControlName="password" autocomplete="current-password" />
+    <app-field-error [control]="form.controls.password" etiqueta="La contraseña" />
+  </label>
+
+  <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+    {{ enviando() ? 'Ingresando...' : 'Ingresar' }}
+  </button>
+
+  <small class="ayuda-campo">
+    Si tu cuenta está sancionada no podrás ingresar. Acércate a la biblioteca para regularizar tus multas.
+  </small>
+  <p>¿No tienes cuenta? <a routerLink="/registro">Regístrate</a></p>
+</form>

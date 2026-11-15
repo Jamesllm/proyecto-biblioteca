@@ -1,0 +1,53 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="registrar()" novalidate>
+  <h1>Registrar préstamo</h1>
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <label class="campo">
+    <span>Lector</span>
+    <select formControlName="idUsuario">
+      <option [ngValue]="null">Selecciona un lector</option>
+      @for (lector of lectores(); track lector.id) {
+        <option [ngValue]="lector.id">{{ lector.nombre }} ({{ lector.estado }})</option>
+      }
+    </select>
+    <app-field-error [control]="form.controls.idUsuario" etiqueta="El lector" />
+  </label>
+
+  <label class="campo">
+    <span>Libro</span>
+    <select formControlName="isbn">
+      <option value="">Selecciona un libro</option>
+      @for (libro of catalogo(); track libro.isbn) {
+        <option [value]="libro.isbn">{{ libro.titulo }}</option>
+      }
+    </select>
+    <app-field-error [control]="form.controls.isbn" etiqueta="El libro" />
+  </label>
+
+  <label class="campo">
+    <span>Ejemplar disponible</span>
+    <select formControlName="idEjemplar">
+      <option [ngValue]="null">Selecciona un ejemplar</option>
+      @for (ejemplar of disponibles(); track ejemplar.id) {
+        <option [ngValue]="ejemplar.id">Copia N.° {{ ejemplar.numeroCopia }} · {{ ejemplar.ubicacion }}</option>
+      }
+    </select>
+    <app-field-error [control]="form.controls.idEjemplar" etiqueta="El ejemplar" />
+    @if (form.controls.isbn.value && disponibles().length === 0) {
+      <small class="ayuda-campo">Este libro no tiene ejemplares disponibles.</small>
+    }
+  </label>
+
+  <small class="ayuda-campo">El plazo de devolución es de 14 días calendario.</small>
+  <br />
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+      {{ enviando() ? 'Registrando...' : 'Registrar' }}
+    </button>
+    <a class="btn" routerLink="/prestamos">Cancelar</a>
+  </div>
+</form>

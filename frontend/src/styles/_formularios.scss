@@ -1,0 +1,118 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.formulario {
+  @include tarjeta;
+  max-width: 640px;
+  padding: $espacio-l;
+
+  &--centrado {
+    margin: $espacio-l auto 0;
+  }
+
+  &--angosto {
+    max-width: 420px;
+    margin: $espacio-xl auto 0;
+  }
+
+  h1 {
+    margin-bottom: $espacio-m;
+    font-size: 1.6rem;
+  }
+}
+
+.fila-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 $espacio-m;
+
+  @include movil {
+    grid-template-columns: 1fr;
+  }
+}
+
+.campo {
+  display: block;
+  margin-bottom: $espacio-m;
+
+  > span:first-child {
+    display: block;
+    margin-bottom: $espacio-xs;
+    font-size: $texto-s;
+    font-weight: 600;
+  }
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid $color-borde;
+  border-radius: $radio;
+  background: $color-superficie;
+  color: inherit;
+  font: inherit;
+
+  &:hover:not(:disabled) {
+    border-color: $color-tinta-suave;
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: $color-peligro;
+  }
+
+  &:disabled {
+    background: $color-neutro-fondo;
+    color: $color-tinta-suave;
+  }
+}
+
+textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.error-campo {
+  display: block;
+  margin-top: $espacio-xs;
+  color: $color-peligro;
+  font-size: 0.85rem;
+}
+
+.ayuda-campo {
+  display: block;
+  margin-top: $espacio-xs;
+  color: $color-tinta-suave;
+  font-size: 0.85rem;
+}
+
+.alerta {
+  margin: 0 0 $espacio-m;
+  padding: 0.65rem 0.85rem;
+  border-radius: $radio;
+  background: $color-peligro-fondo;
+  color: $color-peligro;
+  font-size: 0.92rem;
+
+  &--aviso {
+    background: $color-aviso-fondo;
+    color: $color-aviso;
+  }
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 $espacio-m;
+  margin-bottom: $espacio-s;
+
+  > * {
+    flex: 1 1 220px;
+    max-width: 360px;
+
+    @include movil {
+      max-width: none;
+    }
+  }
+}

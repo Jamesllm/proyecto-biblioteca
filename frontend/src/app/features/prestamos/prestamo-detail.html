@@ -1,0 +1,63 @@
+<app-data-state [cargando]="detalle.cargando()" [error]="detalle.error()" (reintentar)="detalle.cargar()">
+  @if (detalle.datos(); as prestamo) {
+    <app-page-header [titulo]="'Préstamo N.° ' + prestamo.idPrestamo">
+      <a class="btn" [routerLink]="auth.esPersonal() ? '/prestamos' : '/mis-prestamos'">Volver</a>
+      @if (auth.esPersonal() && prestamo.estadoPrestamo !== 'DEVUELTO') {
+        <a class="btn btn--primario" [routerLink]="['/prestamos', prestamo.idPrestamo, 'devolver']">Registrar devolución</a>
+      }
+    </app-page-header>
+
+    <section class="ficha">
+      <dl>
+        <dt>Estado</dt>
+        <dd><app-estado-badge [estado]="prestamo.estadoPrestamo" /></dd>
+        <dt>Lector</dt>
+        <dd>{{ prestamo.usuario?.nombre }}</dd>
+        <dt>Libro</dt>
+        <dd>{{ prestamo.libro?.titulo }}</dd>
+        <dt>Ejemplar</dt>
+        <dd>Copia N.° {{ prestamo.ejemplar?.numeroCopia }} · {{ prestamo.ejemplar?.ubicacion }}</dd>
+        <dt>Fecha de préstamo</dt>
+        <dd>{{ prestamo.fechaHoraPrestamo | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        <dt>Fecha límite</dt>
+        <dd>{{ prestamo.fechaHoraDevolucionEsperada | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        <dt>Fecha de devolución</dt>
+        <dd>
+          @if (prestamo.fechaHoraDevolucionReal) {
+            {{ prestamo.fechaHoraDevolucionReal | date: 'dd/MM/yyyy HH:mm' }}
+          } @else {
+            Pendiente
+          }
+        </dd>
+        <dt>Situación</dt>
+        <dd>
+          @if (prestamo.enMora) {
+            En mora: {{ prestamo.diasRetraso }} día(s), {{ prestamo.horasRetraso }} hora(s)
+          } @else if (prestamo.fechaHoraDevolucionReal) {
+            Devuelto a tiempo
+          } @else {
+            Quedan {{ prestamo.horasRestantes }} hora(s)
+          }
+        </dd>
+      </dl>
+    </section>
+
+    @if (prestamo.multa; as multa) {
+      <section class="seccion">
+        <h2>Multa asociada</h2>
+        <div class="ficha">
+          <dl>
+            <dt>Estado</dt>
+            <dd><app-estado-badge [estado]="multa.estado" /></dd>
+            <dt>Tipo</dt>
+            <dd>{{ multa.tipoMulta }}</dd>
+            <dt>Monto</dt>
+            <dd>{{ multa.monto | soles }}</dd>
+            <dt>Motivo</dt>
+            <dd>{{ multa.motivo || '—' }}</dd>
+          </dl>
+        </div>
+      </section>
+    }
+  }
+</app-data-state>

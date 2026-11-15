@@ -1,0 +1,50 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="registrar()" novalidate>
+  <h1>Registrar devolución</h1>
+
+  @if (prestamo(); as actual) {
+    <p class="texto-suave">{{ actual.libro?.titulo }} · {{ actual.usuario?.nombre }}</p>
+  }
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>Fecha y hora de devolución</span>
+      <input type="datetime-local" formControlName="fechaHoraDevolucionReal" />
+      <app-field-error [control]="form.controls.fechaHoraDevolucionReal" etiqueta="La fecha" />
+    </label>
+    <label class="campo">
+      <span>Estado de conservación</span>
+      <select formControlName="estadoConservacion">
+        @for (opcion of conservaciones; track opcion) {
+          <option [value]="opcion">{{ opcion }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <label class="campo">
+    <span>Monto por daño (opcional)</span>
+    <input type="number" formControlName="montoDanoExtra" min="0" step="0.01" />
+    <app-field-error [control]="form.controls.montoDanoExtra" etiqueta="El monto" />
+    <small class="ayuda-campo">Si es mayor a 0, se emite una multa por daño y se sanciona al lector.</small>
+  </label>
+
+  <label class="campo">
+    <span>Observaciones (opcional)</span>
+    <textarea formControlName="observaciones"></textarea>
+  </label>
+
+  <p class="alerta alerta--aviso">
+    Si la fecha supera el plazo, el sistema emite una multa de S/ 2.50 por día de retraso y sanciona al lector.
+  </p>
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+      {{ enviando() ? 'Registrando...' : 'Registrar devolución' }}
+    </button>
+    <a class="btn" routerLink="/prestamos">Cancelar</a>
+  </div>
+</form>

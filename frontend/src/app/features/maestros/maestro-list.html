@@ -1,0 +1,40 @@
+<app-page-header [titulo]="maestro().titulo">
+  <a class="btn btn--primario" [routerLink]="['/', maestro().recurso, 'nuevo']">Nuevo</a>
+</app-page-header>
+
+<app-data-state
+  [cargando]="registros.cargando()"
+  [error]="registros.error()"
+  [vacio]="registros.datos().length === 0"
+  (reintentar)="registros.cargar()"
+>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead>
+        <tr>
+          @for (campo of maestro().campos; track campo.nombre) {
+            <th>{{ campo.etiqueta }}</th>
+          }
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (registro of registros.datos(); track registro.id) {
+          <tr>
+            @for (campo of maestro().campos; track campo.nombre) {
+              <td>{{ registro[campo.nombre] || '—' }}</td>
+            }
+            <td>
+              <div class="acciones">
+                <a class="btn btn--chico" [routerLink]="['/', maestro().recurso, registro.id, 'editar']">Editar</a>
+                <button type="button" class="btn btn--chico btn--peligro" (click)="eliminar(registro)">
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-data-state>

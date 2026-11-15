@@ -1,0 +1,86 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+  <h1>{{ id() ? 'Editar usuario' : 'Nuevo usuario' }}</h1>
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <label class="campo">
+    <span>Nombre completo</span>
+    <input type="text" formControlName="nombre" />
+    <app-field-error [control]="form.controls.nombre" etiqueta="El nombre" />
+  </label>
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>DNI (opcional)</span>
+      <input type="text" formControlName="dni" inputmode="numeric" />
+      <app-field-error [control]="form.controls.dni" mensajeFormato="El DNI debe tener entre 8 y 15 dígitos." />
+    </label>
+    <label class="campo">
+      <span>Teléfono (opcional)</span>
+      <input type="tel" formControlName="telefono" />
+      <app-field-error [control]="form.controls.telefono" />
+    </label>
+  </div>
+
+  <label class="campo">
+    <span>Correo electrónico</span>
+    <input type="email" formControlName="email" />
+    <app-field-error [control]="form.controls.email" etiqueta="El correo" />
+  </label>
+
+  @if (!id()) {
+    <label class="campo">
+      <span>Contraseña</span>
+      <input type="password" formControlName="password" autocomplete="new-password" />
+      <app-field-error [control]="form.controls.password" etiqueta="La contraseña" />
+    </label>
+  }
+
+  <label class="campo">
+    <span>Dirección (opcional)</span>
+    <input type="text" formControlName="direccion" />
+    <app-field-error [control]="form.controls.direccion" />
+  </label>
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>Tipo de usuario</span>
+      <select formControlName="tipoUsuario">
+        @for (tipo of tipos; track tipo) {
+          <option [value]="tipo">{{ tipo }}</option>
+        }
+      </select>
+    </label>
+    <label class="campo">
+      <span>Rol</span>
+      <select formControlName="rol">
+        @for (rol of roles; track rol[0]) {
+          <option [value]="rol[0]">{{ rol[1] }}</option>
+        }
+      </select>
+      @if (id()) {
+        <small class="ayuda-campo">El rol no se puede cambiar después de crear la cuenta.</small>
+      }
+    </label>
+  </div>
+
+  @if (id()) {
+    <label class="campo">
+      <span>Estado</span>
+      <select formControlName="estado">
+        @for (estado of estados; track estado) {
+          <option [value]="estado">{{ estado }}</option>
+        }
+      </select>
+    </label>
+  }
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+      {{ enviando() ? 'Guardando...' : 'Guardar' }}
+    </button>
+    <a class="btn" routerLink="/usuarios">Cancelar</a>
+  </div>
+</form>

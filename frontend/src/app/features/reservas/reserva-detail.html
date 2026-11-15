@@ -1,0 +1,62 @@
+<app-data-state [cargando]="detalle.cargando()" [error]="detalle.error()" (reintentar)="detalle.cargar()">
+  @if (detalle.datos(); as reserva) {
+    <app-page-header [titulo]="'Reserva N.° ' + reserva.id">
+      <a class="btn" [routerLink]="auth.esPersonal() ? '/reservas' : '/mis-reservas'">Volver</a>
+    </app-page-header>
+
+    <section class="ficha">
+      <dl>
+        <dt>Estado</dt>
+        <dd><app-estado-badge [estado]="reserva.estado" /></dd>
+        <dt>Reservado para</dt>
+        <dd>{{ reserva.fechaHoraReserva | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        <dt>Vence el</dt>
+        <dd>{{ reserva.fechaHoraExpiracion | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      </dl>
+    </section>
+
+    @if (reserva.libro; as libro) {
+      <section class="seccion">
+        <h2>Libro reservado</h2>
+        <div class="ficha">
+          <dl>
+            <dt>Título</dt>
+            <dd><a [routerLink]="['/libros', libro.isbn]">{{ libro.titulo }}</a></dd>
+            <dt>ISBN</dt>
+            <dd class="dato">{{ libro.isbn }}</dd>
+            <dt>Autor</dt>
+            <dd>{{ libro.autor?.nombre }}</dd>
+            <dt>Categoría</dt>
+            <dd>{{ libro.categoria?.nombre }}</dd>
+            <dt>Editorial</dt>
+            <dd>{{ libro.editorial?.nombre }}</dd>
+            <dt>Año</dt>
+            <dd>{{ libro.anioPublicacion }}</dd>
+            <dt>Sinopsis</dt>
+            <dd>{{ libro.sinopsis || '—' }}</dd>
+          </dl>
+        </div>
+      </section>
+    }
+
+    @if (auth.esPersonal() && reserva.usuario; as lector) {
+      <section class="seccion">
+        <h2>Lector</h2>
+        <div class="ficha">
+          <dl>
+            <dt>Nombre</dt>
+            <dd>{{ lector.nombre }}</dd>
+            <dt>DNI</dt>
+            <dd class="dato">{{ lector.dni || '—' }}</dd>
+            <dt>Correo</dt>
+            <dd>{{ lector.email }}</dd>
+            <dt>Teléfono</dt>
+            <dd>{{ lector.telefono || '—' }}</dd>
+            <dt>Estado</dt>
+            <dd><app-estado-badge [estado]="lector.estado" /></dd>
+          </dl>
+        </div>
+      </section>
+    }
+  }
+</app-data-state>

@@ -1,0 +1,49 @@
+<app-page-header titulo="Usuarios">
+  <a class="btn btn--primario" routerLink="/usuarios/nuevo">Nuevo usuario</a>
+</app-page-header>
+
+<div class="filtros">
+  <app-search-box placeholder="Nombre, correo o DNI" (buscar)="termino.set($event)" />
+</div>
+
+<app-data-state
+  [cargando]="usuarios.cargando()"
+  [error]="usuarios.error()"
+  [vacio]="filtrados().length === 0"
+  mensajeVacio="No se encontraron usuarios."
+  (reintentar)="usuarios.cargar()"
+>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>DNI</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (usuario of filtrados(); track usuario.id) {
+          <tr>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.dni || '—' }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ etiquetasRol[usuario.rol] }}</td>
+            <td><app-estado-badge [estado]="usuario.estado" /></td>
+            <td>
+              <div class="acciones">
+                <a class="btn btn--chico" [routerLink]="['/usuarios', usuario.id, 'editar']">Editar</a>
+                @if (usuario.id !== auth.sesion()?.id) {
+                  <button type="button" class="btn btn--chico btn--peligro" (click)="eliminar(usuario)">Eliminar</button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-data-state>

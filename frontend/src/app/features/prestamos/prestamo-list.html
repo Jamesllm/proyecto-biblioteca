@@ -1,0 +1,61 @@
+<app-page-header titulo="Préstamos">
+  <a class="btn btn--primario" routerLink="/prestamos/nuevo">Registrar préstamo</a>
+</app-page-header>
+
+<div class="filtros">
+  <label class="campo">
+    <span>Estado</span>
+    <select (change)="estado.set($any($event.target).value)">
+      <option value="">Todos</option>
+      <option value="ACTIVO">Activo</option>
+      <option value="VENCIDO">Vencido</option>
+      <option value="DEVUELTO">Devuelto</option>
+    </select>
+  </label>
+</div>
+
+<app-data-state
+  [cargando]="prestamos.cargando()"
+  [error]="prestamos.error()"
+  [vacio]="filtrados().length === 0"
+  mensajeVacio="No hay préstamos para mostrar."
+  (reintentar)="prestamos.cargar()"
+>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>N.°</th>
+          <th>Lector</th>
+          <th>Libro</th>
+          <th>Copia</th>
+          <th>Fecha límite</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (prestamo of filtrados(); track prestamo.id) {
+          <tr>
+            <td>{{ prestamo.id }}</td>
+            <td>{{ prestamo.usuario?.nombre }}</td>
+            <td>{{ prestamo.ejemplar?.libro?.titulo }}</td>
+            <td>{{ prestamo.ejemplar?.numeroCopia }}</td>
+            <td>{{ prestamo.fechaHoraDevolucionEsperada | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td><app-estado-badge [estado]="prestamo.estado" /></td>
+            <td>
+              <div class="acciones">
+                <a class="btn btn--chico" [routerLink]="['/prestamos', prestamo.id]">Detalle</a>
+                @if (prestamo.estado !== 'DEVUELTO') {
+                  <a class="btn btn--chico btn--primario" [routerLink]="['/prestamos', prestamo.id, 'devolver']">
+                    Devolver
+                  </a>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-data-state>

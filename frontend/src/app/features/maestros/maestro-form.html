@@ -1,0 +1,26 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+  <h1>{{ id() ? 'Editar' : 'Registrar' }} {{ maestro().singular }}</h1>
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  @for (campo of maestro().campos; track campo.nombre) {
+    <label class="campo">
+      <span>{{ campo.etiqueta }}{{ campo.requerido ? '' : ' (opcional)' }}</span>
+      @if (campo.tipo === 'area') {
+        <textarea [formControlName]="campo.nombre"></textarea>
+      } @else {
+        <input type="text" [formControlName]="campo.nombre" />
+      }
+      <app-field-error [control]="form.controls[campo.nombre]" [etiqueta]="campo.etiqueta" />
+    </label>
+  }
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+      {{ enviando() ? 'Guardando...' : 'Guardar' }}
+    </button>
+    <a class="btn" [routerLink]="['/', maestro().recurso]">Cancelar</a>
+  </div>
+</form>

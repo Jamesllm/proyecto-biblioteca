@@ -1,0 +1,50 @@
+<form class="formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+  <h1>{{ id() ? 'Editar ejemplar' : 'Nuevo ejemplar' }}</h1>
+  <p class="texto-suave">ISBN: {{ isbnLibro() }}</p>
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>Número de copia</span>
+      <input type="number" formControlName="numeroCopia" min="1" />
+      <app-field-error [control]="form.controls.numeroCopia" etiqueta="El número de copia" />
+    </label>
+    <label class="campo">
+      <span>Ubicación (opcional)</span>
+      <input type="text" formControlName="ubicacion" placeholder="Estantería A-1, Nivel 1" />
+      <app-field-error [control]="form.controls.ubicacion" />
+    </label>
+  </div>
+
+  <div class="fila-campos">
+    <label class="campo">
+      <span>Estado de conservación</span>
+      <select formControlName="estadoConservacion">
+        @for (opcion of conservaciones; track opcion) {
+          <option [value]="opcion">{{ opcion }}</option>
+        }
+      </select>
+    </label>
+    <label class="campo">
+      <span>Estado de circulación</span>
+      <select formControlName="estado">
+        @for (opcion of estados; track opcion) {
+          <option [value]="opcion" [disabled]="opcion === 'PRESTADO'">{{ opcion }}</option>
+        }
+      </select>
+      @if (form.controls.estado.disabled) {
+        <small class="ayuda-campo">El estado cambiará cuando se registre la devolución.</small>
+      }
+    </label>
+  </div>
+
+  <div class="acciones">
+    <button type="submit" class="btn btn--primario" [disabled]="enviando()">
+      {{ enviando() ? 'Guardando...' : 'Guardar' }}
+    </button>
+    <a class="btn" [routerLink]="['/libros', isbnLibro()]">Cancelar</a>
+  </div>
+</form>

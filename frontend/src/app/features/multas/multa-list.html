@@ -1,0 +1,73 @@
+<app-page-header [titulo]="modo() === 'todas' ? 'Multas' : 'Mis multas'">
+  <button
+    type="button"
+    class="btn"
+    [class.btn--primario]="!soloPendientes()"
+    [attr.aria-pressed]="!soloPendientes()"
+    (click)="cambiarFiltro(false)"
+  >
+    Todas
+  </button>
+  <button
+    type="button"
+    class="btn"
+    [class.btn--primario]="soloPendientes()"
+    [attr.aria-pressed]="soloPendientes()"
+    (click)="cambiarFiltro(true)"
+  >
+    Pendientes
+  </button>
+</app-page-header>
+
+@if (modo() === 'mias' && !auth.puedePagarMultas()) {
+  <p class="alerta alerta--aviso">Tus multas pendientes se cancelan en la biblioteca con el personal.</p>
+}
+
+<app-data-state
+  [cargando]="datos.cargando()"
+  [error]="datos.error()"
+  [vacio]="visibles().length === 0"
+  mensajeVacio="No hay multas para mostrar."
+  (reintentar)="datos.cargar()"
+>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>N.°</th>
+          @if (modo() === 'todas') {
+            <th>Lector</th>
+          }
+          <th>Tipo</th>
+          <th>Motivo</th>
+          <th>Emisión</th>
+          <th class="numero">Monto</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (multa of visibles(); track multa.id) {
+          <tr>
+            <td>{{ multa.id }}</td>
+            @if (modo() === 'todas') {
+              <td>{{ nombreUsuario(multa.idUsuario) }}</td>
+            }
+            <td>{{ multa.tipoMulta }}</td>
+            <td>{{ multa.motivo || '—' }}</td>
+            <td>{{ multa.fechaHoraEmision | date: 'dd/MM/yyyy' }}</td>
+            <td class="numero">{{ multa.monto | soles }}</td>
+            <td><app-estado-badge [estado]="multa.estado" /></td>
+            <td>
+              @if (puedePagar(multa)) {
+                <a class="btn btn--chico btn--primario" [routerLink]="['/multas', multa.id, 'pagar']">
+                  {{ modo() === 'todas' ? 'Cobrar' : 'Pagar' }}
+                </a>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</app-data-state>

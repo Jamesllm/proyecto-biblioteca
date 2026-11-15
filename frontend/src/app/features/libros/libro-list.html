@@ -1,0 +1,49 @@
+<app-page-header titulo="Catálogo" subtitulo="Consulta las obras disponibles en la biblioteca.">
+  @if (auth.esPersonal()) {
+    <a class="btn btn--primario" routerLink="/libros/nuevo">Nuevo libro</a>
+  }
+</app-page-header>
+
+<div class="filtros">
+  <app-search-box
+    etiqueta="Buscar"
+    placeholder="Título, autor o ISBN"
+    (buscar)="termino.set($event)"
+  />
+  <label class="campo">
+    <span>Categoría</span>
+    <select (change)="categoria.set($any($event.target).value)">
+      <option value="">Todas</option>
+      @for (nombre of categorias(); track nombre) {
+        <option [value]="nombre">{{ nombre }}</option>
+      }
+    </select>
+  </label>
+</div>
+
+<app-data-state
+  [cargando]="libros.cargando()"
+  [error]="libros.error()"
+  [vacio]="filtrados().length === 0"
+  mensajeVacio="No se encontraron libros."
+  (reintentar)="libros.cargar()"
+>
+  <div class="grid-tarjetas">
+    @for (libro of filtrados(); track libro.isbn) {
+      <article class="tarjeta tarjeta--clicable">
+        <p class="tarjeta__ficha">ISBN {{ libro.isbn }}</p>
+        <h2>
+          <a class="tarjeta__enlace" [routerLink]="['/libros', libro.isbn]">{{ libro.titulo }}</a>
+        </h2>
+        <p>{{ libro.autor?.nombre }}</p>
+        <p class="texto-suave">{{ libro.categoria?.nombre }} · {{ libro.anioPublicacion }}</p>
+        @if (auth.esPersonal()) {
+          <div class="acciones">
+            <a class="btn btn--chico" [routerLink]="['/libros', libro.isbn, 'editar']">Editar</a>
+            <button type="button" class="btn btn--chico btn--peligro" (click)="eliminar(libro)">Eliminar</button>
+          </div>
+        }
+      </article>
+    }
+  </div>
+</app-data-state>
